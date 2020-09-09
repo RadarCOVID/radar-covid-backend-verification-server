@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30" status="INFO" strict="true">
+    <Appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - %msg%n"/>
+        </Console>
+        <Async name="CONSOLE_ASYNC" includeLocation="true">
+            <AppenderRef ref="CONSOLE" />
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Logger name="es.gob.radarcovid" level="debug" />
+        <Logger name="org.springframework.context.annotation.ConfigurationClassPostProcessor" level="error" />
+        <Logger name="org.springframework.boot.context.properties.ConfigurationPropertiesBindingPostProcessor" level="error" />
+        <Logger name="org.apache.catalina" level="warn" />
+        <Logger name="org.apache.coyote" level="warn" />
+        <Logger name="org.apache.tomcat" level="warn" />
+        <Logger name="org.hibernate" level="warn" />
+        <Logger name="org.springframework" level="warn" />
+        <Root level="info">
+            <AppenderRef ref="CONSOLE_ASYNC" />
+        </Root>
+    </Loggers>
+</Configuration>

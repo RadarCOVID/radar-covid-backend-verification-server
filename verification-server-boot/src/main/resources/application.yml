@@ -1,0 +1,107 @@
+server:
+  port: ${SERVER_PORT:8080}
+  compression:
+    enabled: true
+    mime-types:
+      - application/json
+      - application/xml
+      - text/xml
+      - text/css
+      - text/plain
+  http2:
+    enabled: true
+  servlet:
+    context-path: ${CONTEXT_PATH:}
+  shutdown: graceful
+
+management:
+  endpoint.health.probes.enabled: true
+  endpoints:
+    enabled-by-default: ${MANAGEMENT_ENDPOINTS_ENABLED:true}
+    web.exposure.include: '*'
+  server.port: ${MANAGEMENT_PORT:8080}
+
+spring:
+  lifecycle.timeout-per-shutdown-phase: ${LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE:20s}
+  datasource:
+    initialization-mode: never
+    continue-on-error: false
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PSW}
+    hikari:
+      minimum-idle: ${DATABASE_MIN_IDLE:5}
+      maximum-pool-size: ${DATABASE_MAX_IDLE:20}
+      connection-timeout: ${DATABASE_CONNECTION_TIMEOUT:20000}
+  jpa:
+    hibernate:
+      ddl-auto: none
+      generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        generate_statistics: ${HIBERNATE_GENERATE_STATISTICS:false}
+        jdbc.lob.non_contextual_creation: true
+        default_schema: ${DATABASE_SCHEMA:verification}
+        # batch
+        jdbc.batch_size: ${HIBERNATE_BATCH_SIZE:10}
+        order_inserts: ${HIBERNATE_ORDER_INSERTS:true}
+  sleuth:
+    log.slf4j.enabled: true
+  security:
+    user:
+      name: ${SECURITY_USER_NAME:radar}
+      password: ${SECURITY_USER_PASSWORD}
+
+springdoc:
+  api-docs:
+    path: /openapi/api-docs
+    enabled: ${OPENAPI_ENABLED:true}
+  swagger-ui:
+    path: /openapi/ui
+    enabled: ${OPENAPI_ENABLED:true}
+
+application:
+  cache:
+    enabled: ${CACHE_ENABLED:true}
+    max-size: ${CACHE_MAX_SIZE:200}
+    time-to-live: ${CACHE_TIME_TO_LIVE:5} # minutes
+    max-idle: ${CACHE_MAX_IDLE:20} # seconds
+  log:
+    enabled: ${LOGGABLE_ENABLED:true}
+  openapi:
+    title: es.gob.radarcovid.verification
+    description: '@project.description@'
+    version: '@project.version@'
+    server: 'https://radarcovid.covid19.gob.es'
+    terms-of-service: https://radarcovid.covid19.gob.es/terms-of-service/use-conditions.html
+    security:
+      enabled: ${OPENAPI_SECURITY_ENABLED:true}
+  entities:
+    codes:
+      max: ${ENTITIES_MAX_CODES:100}
+    redeem:
+      code: ${ENTITIES_REDEEM_CODE:7} # days to redeem code
+      tan: ${ENTITIES_REDEEM_TAN:15} # minutes
+  random:
+    code.size: ${VERIFICATION_CODE_SIZE:12}
+    tan.size: ${VERIFICATION_TAN_SIZE:256}
+  credentials:
+    privateKey: ${CREDENTIALS_PRIVATE_KEY}
+    publicKey: ${CREDENTIALS_PUBLIC_KEY}
+  dummy:
+    enabled: false
+  jwt:
+    subject: ${JWT_RADAR_SUBJECT}
+    issuer: ${JWT_RADAR_ISSUER}
+    onset:
+      default: ${JWT_ONSET_DEFAULT:5} # días antes si no informan fecha desde app
+      app: ${JWT_ONSET_APP:2} # días antes si informan fecha desde app
+    minutes: ${JWT_MINUTES_EXPIRATION:15} 
+ 
+logging:
+  pattern:
+    console: '[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - [%X{X-B3-TraceId}] [%X{TRACKING}] - %msg%n'
+  level:
+    root: info
+    es.gob.radarcovid: debug
