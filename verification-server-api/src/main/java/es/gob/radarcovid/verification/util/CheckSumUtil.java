@@ -27,7 +27,7 @@ public class CheckSumUtil {
     }
 
     public static boolean validateChecksum(String validationCode) {
-        String dummy = validationCode.substring(0, validationCode.length() - 1)
+        String dummy = validationCode.substring(0, validationCode.length() - 1);
         return true;
     }
 
