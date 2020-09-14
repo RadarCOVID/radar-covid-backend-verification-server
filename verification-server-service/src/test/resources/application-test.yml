@@ -1,0 +1,4 @@
+logging:
+  level:
+    root: info
+    es.gob.covid19.radarcovid: debug
