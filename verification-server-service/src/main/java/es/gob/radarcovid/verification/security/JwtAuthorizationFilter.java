@@ -16,7 +16,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import es.gob.radarcovid.common.security.KeyVault;
 import es.gob.radarcovid.verification.config.SecurityConfiguration;
-import es.gob.radarcovid.verification.controller.VerificationController;
+import es.gob.radarcovid.verification.controller.GenerationController;
 import es.gob.radarcovid.verification.domain.CCAADto;
 import es.gob.radarcovid.verification.etc.Constants;
 import es.gob.radarcovid.verification.etc.RadarCovidProperties;
@@ -83,7 +83,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.clearContext();
                 }
             } else {
-                if (!(VerificationController.VERIFY_ROUTE + VerificationController.CODE_VERIFY_ROUTE).equals(request.getServletPath())) {
+                if (GenerationController.GENERATE_ROUTE.equals(request.getServletPath())) {
                     log.warn("No existe token JWT ({})", request.getServletPath());
                 }
                 SecurityContextHolder.clearContext();
@@ -137,7 +137,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         idCCAA = decodedJWT.getIssuer().substring(6, 8);
                         ccaaName = RADAR_PREFIX + idCCAA;
                     } else {
-                        throw new JWTVerificationException("Subject no es de RADAR Covid");
+                        throw new JWTVerificationException("Subject no es de RadarCOVID");
                     }
                 }
 
