@@ -13,12 +13,10 @@ import es.gob.radarcovid.verification.persistence.CCAADao
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.spock.Testcontainers
 import spock.lang.Specification
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Testcontainers
 class CCAADaoTestSpec extends Specification {
 
     @Autowired
@@ -29,7 +27,7 @@ class CCAADaoTestSpec extends Specification {
         def ccaaList = ccaaDao.list
 
         expect:
-        ccaaList.size() == 19
+        ccaaList.size() == 20
     }
 
     def "find By Id"(String id, String ccaaName) {
