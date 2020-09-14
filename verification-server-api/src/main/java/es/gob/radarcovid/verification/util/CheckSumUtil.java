@@ -20,7 +20,7 @@ public class CheckSumUtil {
     public static int checkSum(String input) {
         // Sample code - returns checkSum from input
         int result = 0;
-        if (input != null && !StringUtils.isEmpty(input)) {
+        if (!StringUtils.isEmpty(input)) {
             result = Character.getNumericValue(input.charAt(input.length() - 1));
         }
         return result;
