@@ -9,10 +9,8 @@
  */
 package es.gob.radarcovid.verification.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
-@Slf4j
 public class CheckSumUtil {
 
     private CheckSumUtil() {}
@@ -31,6 +29,10 @@ public class CheckSumUtil {
         int last = Character.getNumericValue(validationCode.charAt(validationCode.length() - 1));
         int checksum = checkSum(validationCode.substring(0, validationCode.length() - 1));
         return last == checksum;
+    }
+
+    public static String addCheckSum(String input) {
+        return input + checkSum(input);
     }
 
 }
