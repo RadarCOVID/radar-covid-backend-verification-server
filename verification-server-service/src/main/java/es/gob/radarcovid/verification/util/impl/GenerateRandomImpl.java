@@ -38,7 +38,7 @@ public class GenerateRandomImpl implements GenerateRandom {
            stringBuilder.append(SECURE_RANDOM.nextInt(10));
         }
         String random = stringBuilder.toString();
-        return random + CheckSumUtil.checkSum(random);
+        return CheckSumUtil.addCheckSum(random);
     }
 
     @Override
