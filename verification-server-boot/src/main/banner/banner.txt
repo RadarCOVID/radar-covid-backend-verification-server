@@ -1,3 +1,4 @@
  SEDIA RadarCovid Application - ${application.title} ${application.formatted-version} running on [${spring.profiles.active}]
+   Build @env.CODEBUILD_BUILD_ID@
    :: Spring Boot ${spring-boot.formatted-version}
 
