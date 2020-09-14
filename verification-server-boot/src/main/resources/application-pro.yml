@@ -14,12 +14,11 @@ springdoc:
   swagger-ui.enabled: false
 
 application:
-  log:
-    enabled: false
+  log.enabled: false
 
 logging:
   pattern:
-    console: '[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - [%X{X-B3-TraceId},%X{X-Amz-Cf-Id}] [%X{TRACKING}] - %msg%n'
+    console: '[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - [%X{TRACKING}] [%X{X-B3-TraceId},%X{X-Amz-Cf-Id}] - %msg%n'
   level:
     root: error
     es.gob.radarcovid: debug
