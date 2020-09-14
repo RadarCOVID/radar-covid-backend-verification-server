@@ -56,6 +56,8 @@ Where `<environment>` has these possible values:
 
 All profiles will load the default [configuration file](./verification-server-boot/src/main/resources/application.yml).
 
+Private and public keys located on [`application-local.yml`](./verification-server-boot/src/main/resources/application-local.yml) and [`application-docker.yml`](./verification-server-boot/src/main/resources/application-docker.yml) are only for testing on local (running inside IDE or Docker).
+
 ### Running the Project
 
 Depends on the environment you selected when you built the project, you can run the project:
