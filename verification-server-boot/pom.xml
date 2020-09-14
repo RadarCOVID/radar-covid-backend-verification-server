@@ -14,7 +14,7 @@
     <artifactId>verification-server-boot</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
 
-    <profiles>
+	<profiles>
         <profile>
             <id>devtools</id>
             <dependencies>
@@ -53,8 +53,8 @@
                 <build.profile.id>pro</build.profile.id>
             </properties>
         </profile>
-    </profiles>
-
+	</profiles>
+	
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -198,6 +198,25 @@
                             </resources>
                             <delimiters>
                                 <delimiter>${*}</delimiter>
+                                <delimiter>@</delimiter>
+                            </delimiters>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>banner</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/banner</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                            <delimiters>
                                 <delimiter>@</delimiter>
                             </delimiters>
                         </configuration>
