@@ -118,11 +118,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             String idCCAA = decodedJWT.getSubject();
             MDC.put(Constants.TRACKING, "SUBJECT:" + idCCAA);
             Optional<CCAADto> optionalCCAADto = dao.findById(idCCAA);
-            if (optionalCCAADto.isPresent()) {
+            if (optionalCCAADto.isPresent() && !StringUtils.isEmpty(optionalCCAADto.get().getPublicKey())) {
                 String ccaaName = CCAA_PREFIX + idCCAA;
                 KeyPair keyPairCCAA = keyVault.get(ccaaName);
                 if (keyPairCCAA == null) {
-
                     String strPublicKey = KeyVault.getBase64Key(optionalCCAADto.get().getPublicKey());
                     PublicKey publicKey = KeyVault.loadPublicKey(strPublicKey,
                             SecurityConfiguration.PAIR_KEY_ALGORITHM);
@@ -137,7 +136,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         idCCAA = decodedJWT.getIssuer().substring(6, 8);
                         ccaaName = RADAR_PREFIX + idCCAA;
                     } else {
-                        throw new JWTVerificationException("Subject no es de RadarCOVID");
+                        throw new JWTVerificationException("Subject no es de RadarCOVID " + idCCAA);
                     }
                 }
 
@@ -147,6 +146,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 DecodedJWT jwt = verifier.verify(jwtToken);
 
                 return Optional.of(ccaaName);
+            } else {
+                throw new JWTVerificationException(idCCAA + " doesn't exist or has no public key");
             }
         } else {
             log.warn("Token de comunidad {} generado con mayor duración (ya expirado): {}", decodedJWT.getSubject(),
