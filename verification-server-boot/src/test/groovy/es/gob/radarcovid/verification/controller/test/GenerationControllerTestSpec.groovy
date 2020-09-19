@@ -24,7 +24,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.spock.Testcontainers
 import spock.lang.Specification
 
 import java.nio.charset.StandardCharsets
@@ -36,7 +35,6 @@ import java.time.temporal.ChronoUnit
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Testcontainers
 class GenerationControllerTestSpec extends Specification {
 
     def PRIVATE_KEY_FILE = "classpath://generated_private_base64.pem";

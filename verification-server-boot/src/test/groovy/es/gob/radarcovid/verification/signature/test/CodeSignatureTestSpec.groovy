@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -26,7 +25,6 @@ import java.security.Signature
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Testcontainers
 class CodeSignatureTestSpec extends Specification {
 
     @Shared

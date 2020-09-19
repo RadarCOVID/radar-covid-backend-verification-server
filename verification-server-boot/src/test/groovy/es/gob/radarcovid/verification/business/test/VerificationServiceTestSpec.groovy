@@ -17,12 +17,10 @@ import es.gob.radarcovid.verification.util.HashingService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.spock.Testcontainers
 import spock.lang.Specification
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Testcontainers
 class VerificationServiceTestSpec extends Specification {
 
     @Autowired
@@ -37,7 +35,7 @@ class VerificationServiceTestSpec extends Specification {
     def "get codes"(boolean radarCovid, String ccaa, int number) {
         when:
         def codes = service.getCodes(radarCovid, ccaa, number)
-        def hash = hashingService.hash(codes.codes.get(0))
+        def hash = hashingService.hash(codes.codes.first())
         def entity = repository.findByCodeHashAndCodeRedeemedIsFalse(hash)
 
         then:
@@ -58,19 +56,19 @@ class VerificationServiceTestSpec extends Specification {
         given:
         def codes = service.getCodes(radarCovid, ccaa, number)
         def codeDto = new CodeDto()
-        codeDto.code = codes.codes.get(0)
+        codeDto.code = codes.codes.first()
 
         when:
         def jwt = service.redeemCode(codeDto)
         def decodedJWT = JWT.decode(jwt.get())
-        def codeHash = hashingService.hash(codes.codes.get(0))
+        def codeHash = hashingService.hash(codes.codes.first())
         def entityCode = repository.findByCodeHashAndCodeRedeemedIsFalse(codeHash)
         def tan = decodedJWT.getClaim("tan").asString()
         def tanHash = hashingService.hash(tan)
         def entityTan = repository.findByTanHashAndTanRedeemedIsFalse(tanHash)
 
         then:
-        decodedJWT.subject == codes.codes.get(0)
+        decodedJWT.subject == codes.codes.first()
         decodedJWT.getClaim("scope").asString() == "exposed"
         entityCode.get().ccaa == ccaa
         entityCode.get().codeHash == codeHash
@@ -89,13 +87,13 @@ class VerificationServiceTestSpec extends Specification {
         given:
         def codes = service.getCodes(radarCovid, ccaa, number)
         def codeDto = new CodeDto()
-        codeDto.code = codes.codes.get(0)
+        codeDto.code = codes.codes.first()
 
         when:
         def jwt = service.redeemCode(codeDto)
         def decodedJWT = JWT.decode(jwt.get())
 
-        def codeHash = hashingService.hash(codes.codes.get(0))
+        def codeHash = hashingService.hash(codes.codes.first())
         def entityCode = repository.findByCodeHashAndCodeRedeemedIsFalse(codeHash)
 
         def tan = decodedJWT.getClaim("tan").asString()
@@ -105,7 +103,7 @@ class VerificationServiceTestSpec extends Specification {
         def entityTan = repository.findById(entityCode.get().id)
 
         then:
-        decodedJWT.subject == codes.codes.get(0)
+        decodedJWT.subject == codes.codes.first()
         decodedJWT.getClaim("scope").asString() == "exposed"
         entityCode.get().ccaa == ccaa
         entityCode.get().codeHash == codeHash

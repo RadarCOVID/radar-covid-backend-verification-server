@@ -14,14 +14,12 @@ import es.gob.radarcovid.verification.security.JwtGenerator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.spock.Testcontainers
 import spock.lang.Specification
 
 import java.text.SimpleDateFormat
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Testcontainers
 class JwtGeneratorTestSpec extends Specification {
 
     @Autowired
