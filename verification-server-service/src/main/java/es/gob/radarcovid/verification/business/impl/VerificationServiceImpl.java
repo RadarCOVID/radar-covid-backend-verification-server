@@ -23,10 +23,10 @@ import es.gob.radarcovid.verification.util.CheckSumUtil;
 import es.gob.radarcovid.verification.util.GenerateRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -105,7 +105,7 @@ public class VerificationServiceImpl implements VerificationService {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(code.substring(2,8));
         stringBuilder.append(generateRandom.getAlphaNumericString(randomTanSize - 8));
-        stringBuilder.append(System.currentTimeMillis() % 100);
+        stringBuilder.append(StringUtils.leftPad(Long.toString(System.currentTimeMillis() % 100), 2, '0'));
         return stringBuilder.toString();
     }
 
