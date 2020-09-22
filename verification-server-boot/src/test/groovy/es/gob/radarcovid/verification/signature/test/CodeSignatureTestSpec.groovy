@@ -24,14 +24,14 @@ import java.nio.charset.StandardCharsets
 import java.security.Signature
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles('test')
 class CodeSignatureTestSpec extends Specification {
 
     @Shared
-    PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:12-alpine")
-            .withDatabaseName("RADARCOVID")
-            .withUsername("radarcovid")
-            .withPassword("radarcovid")
+    PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer('postgres:12-alpine')
+            .withDatabaseName('RADARCOVID')
+            .withUsername('radarcovid')
+            .withPassword('radarcovid')
 
     @Autowired
     private CodeSignature codeSignature
@@ -50,7 +50,7 @@ class CodeSignatureTestSpec extends Specification {
         return signature
     }
 
-    def "sign no dummy"(List<String> codes, String result) {
+    def 'sign no dummy'(List<String> codes, String result) {
         given:
         String sign = codeSignature.sign(false, codes)
         Signature signature = getSignature(codes, SecurityConfiguration.PAIR_KEY_RADAR)
@@ -63,6 +63,6 @@ class CodeSignatureTestSpec extends Specification {
 
         where:
         codes                         | result
-        Arrays.asList("123456789012") | "MIGIAkIB7/IoWrSAK023tFw6+Vety7r78ROlX3oAbxeMJs/4F3Q8TJhmB8Qx/GPZ0ENJ3n7EnzsKOjbGymCuahMXgx3h8HwCQgEICrnbRfOpuFRgMC/LmF/jhEo6vh9B21BNYt90R4FKbDco1kHk+SVpHrmEVMud+FJDpOLjCMQ39Z0qqh9rrJv8Iw=="
+        Arrays.asList('123456789012') | 'MIGIAkIB7/IoWrSAK023tFw6+Vety7r78ROlX3oAbxeMJs/4F3Q8TJhmB8Qx/GPZ0ENJ3n7EnzsKOjbGymCuahMXgx3h8HwCQgEICrnbRfOpuFRgMC/LmF/jhEo6vh9B21BNYt90R4FKbDco1kHk+SVpHrmEVMud+FJDpOLjCMQ39Z0qqh9rrJv8Iw=='
     }
 }

@@ -11,29 +11,34 @@ package es.gob.radarcovid.verification.util.test
 
 import es.gob.radarcovid.verification.util.CheckSumUtil
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class CheckSumUtilTestSpec extends Specification {
 
-    def "checkSum"(String input, int result) {
+    @Unroll
+    def 'checkSum([#input]) = [#result]'(String input, int result) {
         expect:
         CheckSumUtil.checkSum(input) == result
 
         where:
-        input          | result
-        "00000000000" | 0
-        "12345678912" | 2
+        input         | result
+        '00000000000' | 0
+        '12345678912' | 2
     }
 
-    def "validateChecksum"(String input, boolean result) {
+    @Unroll
+    def 'validateChecksum([#input]) = [#result]'(String input, boolean result) {
         expect:
         CheckSumUtil.validateChecksum(input) ==  result
 
         where:
         input          | result
-        "000000000000" | true
-        "000000000001" | false
-        "123456789122" | true
-        "123456789123" | false
+        '000000000000' | true
+        '000000000001' | false
+        '123456789122' | true
+        '123456789123' | false
+        '900000000009' | true
+
     }
 
 }

@@ -25,6 +25,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.nio.charset.StandardCharsets
 import java.security.Signature
@@ -34,23 +35,24 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
+@ActiveProfiles('test')
 class GenerationControllerTestSpec extends Specification {
 
-    def PRIVATE_KEY_FILE = "classpath://generated_private_base64.pem";
-    def PUBLIC_KEY_FILE = "classpath://generated_pub_base64_server.pem";
+    def PRIVATE_KEY_FILE = 'classpath://generated_private_base64.pem';
+    def PUBLIC_KEY_FILE = 'classpath://generated_pub_base64_server.pem';
 
     def Logger log = LoggerFactory.getLogger(GenerationControllerTestSpec.class)
 
-    def String ALGORITHM_EC = "EC"
-    def String ALGORITHM_SHA512 = "SHA512withECDSA"
-    def String CCAA_ISSUER = "ISSUER"
+    def String ALGORITHM_EC = 'EC'
+    def String ALGORITHM_SHA512 = 'SHA512withECDSA'
+    def String CCAA_ISSUER = 'ISSUER'
     def int TOKEN_MINS_EXPIRES = 15
 
     @Autowired
     TestRestTemplate testRestTemplate;
 
-    def 'ask for verification codes' (String subject, int numCodes, int statusCode) {
+    @Unroll
+    def 'ask for verification codes with subject [#subject], numCodes [#numCodes] and statusCode [#statusCode]'(String subject, int numCodes, int statusCode) {
         given:
         HttpHeaders httpHeaders = new HttpHeaders()
 
@@ -61,7 +63,7 @@ class GenerationControllerTestSpec extends Specification {
         HttpEntity<?> request = new HttpEntity<>(httpHeaders)
 
         when: 'request the generation endpoint'
-        def result = testRestTemplate.exchange("/generate?n={number}", HttpMethod.GET, request, CodesResultDto.class, numCodes)
+        def result = testRestTemplate.exchange('/generate?n={number}', HttpMethod.GET, request, CodesResultDto.class, numCodes)
 
         then:
         result.statusCode.value == statusCode
@@ -69,8 +71,8 @@ class GenerationControllerTestSpec extends Specification {
 
         where:
         subject | numCodes | statusCode
-        "01"    | 5        | 200         // CCAA 01 is loaded in database
-        "02"    | 1        | 403         // CCAA 02 is not loaded in database
+        '01'    | 5        | 200         // CCAA 01 is loaded in database
+        '02'    | 1        | 403         // CCAA 02 is not loaded in database
     }
 
     def generateToken(String subject) throws Exception {
@@ -99,7 +101,7 @@ class GenerationControllerTestSpec extends Specification {
         ECPublicKey publicKey = (ECPublicKey) KeyVault.loadPublicKeyFromPem(strPublicKey, ALGORITHM_EC)
         Signature signature = Signature.getInstance(ALGORITHM_SHA512)
         signature.initVerify(publicKey)
-        signature.update(stringBuilder.toString().getBytes("UTF-8"))
+        signature.update(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))
 
         return signature.verify(Base64.getDecoder().decode(responseSignature.getBytes(StandardCharsets.UTF_8)))
     }

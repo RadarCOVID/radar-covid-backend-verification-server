@@ -14,15 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
+import spock.lang.Unroll
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles('test')
 class CCAADaoTestSpec extends Specification {
 
     @Autowired
     CCAADao ccaaDao
 
-    def "find all CCAA"() {
+    def 'find all CCAA'() {
         given:
         def ccaaList = ccaaDao.list
 
@@ -30,14 +31,15 @@ class CCAADaoTestSpec extends Specification {
         ccaaList.size() == 20
     }
 
-    def "find By Id"(String id, String ccaaName) {
+    @Unroll
+    def 'find by id [#id] : ccaaName [#ccaaName]'(String id, String ccaaName) {
         expect:
         ccaaDao.findById(id).get().name == ccaaName
 
         where:
         id   | ccaaName
-        "03" | "Asturias, Principado de"
-        "04" | "Balears, Illes"
-        "05" | "Canarias"
+        '03' | 'Asturias, Principado de'
+        '04' | 'Balears, Illes'
+        '05' | 'Canarias'
     }
 }
