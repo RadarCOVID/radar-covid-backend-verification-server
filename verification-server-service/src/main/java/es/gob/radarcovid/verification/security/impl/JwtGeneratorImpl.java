@@ -36,7 +36,8 @@ public class JwtGeneratorImpl implements JwtGenerator {
     private static final String CLAIM_SCOPE_NAME = "scope";
 
     private static final String CLAIM_SCOPE_VALUE = "exposed";
-    private static final int CLAIM_FAKE_VALUE = 0;
+    private static final int CLAIM_FAKE_VALUE_TRUE = 1;
+    private static final int CLAIM_FAKE_VALUE_FALSE = 0;
 
     private static final ThreadLocal<DateFormat> DATE_TIME_FORMATTER = ThreadLocal.<DateFormat>withInitial(
             () -> {
@@ -50,7 +51,7 @@ public class JwtGeneratorImpl implements JwtGenerator {
     private final KeyVault keyVault;
 
     @Override
-    public String generateJwt(String code, String tan, Date exposedDate, Date validUntil) {
+    public String generateJwt(boolean isFake, String code, String tan, Date exposedDate, Date validUntil) {
 
         KeyPair keyPair = keyVault.get(SecurityConfiguration.PAIR_KEY_RADAR);
         ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
@@ -67,7 +68,7 @@ public class JwtGeneratorImpl implements JwtGenerator {
                 .withClaim(CLAIM_TAN, tan)
                 .withClaim(CLAIM_ONSET, DATE_TIME_FORMATTER.get().format(exposedDate))
                 .withClaim(CLAIM_SCOPE_NAME, CLAIM_SCOPE_VALUE)
-                .withClaim(CLAIM_FAKE, CLAIM_FAKE_VALUE)
+                .withClaim(CLAIM_FAKE, isFake ? CLAIM_FAKE_VALUE_TRUE : CLAIM_FAKE_VALUE_FALSE)
                 .sign(algorithm);
     }
 

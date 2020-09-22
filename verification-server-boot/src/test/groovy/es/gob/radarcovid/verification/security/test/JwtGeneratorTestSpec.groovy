@@ -15,35 +15,39 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.text.SimpleDateFormat
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles('test')
 class JwtGeneratorTestSpec extends Specification {
 
     @Autowired
     JwtGenerator jwtGenerator
 
-    def "generate JWT"(String code, String tan, String exposedDateStr, String validUntilStr) {
+    @Unroll
+    def 'generate JWT with code [#code], tan [#tan], exposedDate [#exposedDateStr] and validUntil [#validUntilStr]'(boolean isFake, int fake, String code, String tan, String exposedDateStr, String validUntilStr) {
         given:
-        def dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+        def dateFormat = new SimpleDateFormat('yyyy-MM-dd')
         def exposedDate = dateFormat.parse(exposedDateStr)
         def validUntil  = dateFormat.parse(validUntilStr)
-        String jwt = jwtGenerator.generateJwt(code, tan, exposedDate, validUntil)
+        String jwt = jwtGenerator.generateJwt(isFake, code, tan, exposedDate, validUntil)
 
         when:
         def decodedJWT = JWT.decode(jwt)
 
         then:
         decodedJWT.subject == code
-        decodedJWT.getClaim("tan").asString() == tan
-        decodedJWT.getClaim("onset").asString() == exposedDateStr
-        decodedJWT.getClaim("scope").asString() == "exposed"
+        decodedJWT.getClaim('tan').asString() == tan
+        decodedJWT.getClaim('onset').asString() == exposedDateStr
+        decodedJWT.getClaim('scope').asString() == 'exposed'
+        decodedJWT.getClaim('fake').asInt() == fake
 
         where:
-        code           | tan    | exposedDateStr | validUntilStr
-        "123456789012" | "XXXX" | "2020-08-30"   | "2020-09-14"
+        isFake | code           | tan    | exposedDateStr | validUntilStr | fake
+        false  | '123456789012' | 'XXXX' | '2020-08-30'   | '2020-09-14'  | 0
+        true   | '900000000009' | 'YYYY' | '2020-08-30'   | '2020-09-14'  | 1
     }
 
 }

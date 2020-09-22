@@ -21,6 +21,7 @@ import es.gob.radarcovid.verification.security.JwtGenerator;
 import es.gob.radarcovid.verification.signature.CodeSignature;
 import es.gob.radarcovid.verification.util.CheckSumUtil;
 import es.gob.radarcovid.verification.util.GenerateRandom;
+import es.gob.radarcovid.verification.validation.impl.CodeValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -76,20 +77,27 @@ public class VerificationServiceImpl implements VerificationService {
     @Loggable
     @Override
     public Optional<String> redeemCode(CodeDto codeDto) {
-        if (codeDto != null && !StringUtils.isEmpty(codeDto.getCode()) && CheckSumUtil.validateChecksum(codeDto.getCode())) {
+        if (codeDto != null && !StringUtils.isEmpty(codeDto.getCode())) {
             String strTan = generateTan(codeDto.getCode());
-            log.debug("TAN:{}", strTan);
             Instant validUntilTime = Instant.now().plus(tanValidUntilMinutes, ChronoUnit.MINUTES);
             Date validUntil = Date.from(validUntilTime);
-            if (dao.redeemCode(codeDto.getCode(), strTan, validUntil)) {
-
-                LocalDate exposedLocalDate = codeDto.getDate() == null ?
-                        LocalDate.now().minusDays(onsetDefaultDays) :
-                        LocalDate.ofInstant(codeDto.getDate().toInstant(), ZoneOffset.UTC).minusDays(onsetAppDays);
-
+            if (CodeValidator.FAKE_CODE.equals(codeDto.getCode())) {
+                LocalDate exposedLocalDate = LocalDate.now().minusDays(onsetDefaultDays);
                 Date exposedDate = Date.from(exposedLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant());
+                log.debug("Redeem fake code " + CodeValidator.FAKE_CODE);
+                return Optional.of(jwtGenerator.generateJwt(true, CodeValidator.FAKE_CODE, strTan, exposedDate, validUntil));
+            } else if (CheckSumUtil.validateChecksum(codeDto.getCode())) {
+                log.debug("TAN:{}", strTan);
+                if (dao.redeemCode(codeDto.getCode(), strTan, validUntil)) {
 
-                return Optional.of(jwtGenerator.generateJwt(codeDto.getCode(), strTan, exposedDate, validUntil));
+                    LocalDate exposedLocalDate = codeDto.getDate() == null ?
+                            LocalDate.now().minusDays(onsetDefaultDays) :
+                            LocalDate.ofInstant(codeDto.getDate().toInstant(), ZoneOffset.UTC).minusDays(onsetAppDays);
+
+                    Date exposedDate = Date.from(exposedLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant());
+
+                    return Optional.of(jwtGenerator.generateJwt(false, codeDto.getCode(), strTan, exposedDate, validUntil));
+                }
             }
         }
         throw new VerificationServerException(HttpStatus.BAD_REQUEST, "Code " + codeDto + " is invalid");
@@ -128,7 +136,7 @@ public class VerificationServiceImpl implements VerificationService {
         result.setValidUntil(validUntil);
 
         try {
-            if (dummy) {
+            if (dummy && log.isDebugEnabled()) {
                 log.debug("Firmando con clave privada dummy para CCAA {}", ccaa);
             }
             result.setSignature(codeSignature.sign(dummy, codes));

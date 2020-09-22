@@ -9,7 +9,9 @@
  */
 package es.gob.radarcovid.verification.util;
 
-import org.springframework.util.StringUtils;
+
+import es.gob.radarcovid.verification.validation.impl.CodeValidator;
+import org.apache.commons.lang3.StringUtils;
 
 public class CheckSumUtil {
 
@@ -25,10 +27,18 @@ public class CheckSumUtil {
     }
 
     public static boolean validateChecksum(String validationCode) {
-        // Sample code - returns if code is correct
-        int last = Character.getNumericValue(validationCode.charAt(validationCode.length() - 1));
-        int checksum = checkSum(validationCode.substring(0, validationCode.length() - 1));
-        return last == checksum;
+        boolean result = false;
+        if (StringUtils.isNotEmpty(validationCode)) {
+            if (CodeValidator.FAKE_CODE.equals(validationCode)) {
+                return true;
+            } else {
+                // Sample code - returns if code is correct
+                int last = Character.getNumericValue(validationCode.charAt(validationCode.length() - 1));
+                int checksum = checkSum(validationCode.substring(0, validationCode.length() - 1));
+                result = (last == checksum);
+            }
+        }
+        return result;
     }
 
     public static String addCheckSum(String input) {

@@ -22,8 +22,10 @@ import javax.validation.ConstraintValidatorContext;
 @Slf4j
 public class CodeValidator implements ConstraintValidator<CodeConstraint, String> {
 
+    public static final String FAKE_CODE = "900000000009";
+
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        return (!StringUtils.isEmpty(value) && CheckSumUtil.validateChecksum(value));
+        return !StringUtils.isEmpty(value) && (FAKE_CODE.equals(value) || CheckSumUtil.validateChecksum(value));
     }
 }
