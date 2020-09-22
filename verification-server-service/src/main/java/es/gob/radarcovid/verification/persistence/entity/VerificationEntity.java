@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -26,6 +27,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "TAN")
+@Slf4j
 public class VerificationEntity implements Serializable {
 
     private static final String SEQUENCE_NAME = "SQ_NM_ID_TAN";
@@ -93,9 +95,13 @@ public class VerificationEntity implements Serializable {
      * @return true or false if it can be redeemed
      */
     public boolean codeCanBeRedeemed(Date reference) {
-        return codeValidFrom.before(reference)
+        boolean result = codeValidFrom.before(reference)
                 && codeValidUntil.after(reference)
                 && !isCodeRedeemed();
+        if (!result) {
+            log.warn("Code can't be redeemed due to date or it was redeemed ({})", reference, isCodeRedeemed());
+        }
+        return result;
     }
 
     public boolean codeCanBeRedeemed(LocalDateTime reference) {
@@ -103,10 +109,14 @@ public class VerificationEntity implements Serializable {
     }
 
     public boolean tanCanBeRedeemed(Date reference) {
-        return tanValidFrom.before(reference)
+        boolean result = tanValidFrom.before(reference)
                 && tanValidUntil.after(reference)
                 && !isCodeRedeemed()
                 && !isTanRedeemed();
+        if (!result) {
+            log.warn("Tan can't be redeemed due to date or it was redeemed ({}, {})", reference, isCodeRedeemed(), isTanRedeemed());
+        }
+        return result;
     }
 
     public boolean tanCanBeRedeemed(LocalDateTime reference) {

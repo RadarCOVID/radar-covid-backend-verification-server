@@ -46,7 +46,7 @@ public class VerificationDaoImpl implements VerificationDao {
     public boolean redeemCode(String code, String tan, Date validUntil) {
         String tanHash = hashingService.hash(tan);
         log.debug("Entering in redeemCode(code = {}, tan = {}, validUntil = {}): tanHash = {}", code, tan, validUntil, tanHash);
-        return repository.findByCodeHashAndCodeRedeemedIsFalse(hashingService.hash(code))
+        boolean result = repository.findByCodeHashAndCodeRedeemedIsFalse(hashingService.hash(code))
                 .filter(t -> t.codeCanBeRedeemed(LocalDateTime.now(ZoneOffset.UTC)))
                 .map(t -> {
                     Date now = new Date();
@@ -57,13 +57,15 @@ public class VerificationDaoImpl implements VerificationDao {
                     repository.save(t);
                     return true;
                 }).map(t -> true).orElseGet(() -> false);
+        log.debug("Leaving redeemCode() with: {}", result);
+        return result;
     }
 
     @Override
     public boolean redeemTan(String tan) {
         log.debug("Entering in redeemTan(tan = {})", tan);
         LocalDateTime localDateTimeNow = LocalDateTime.now(ZoneOffset.UTC);
-        return repository.findByTanHashAndTanRedeemedIsFalse(hashingService.hash(tan))
+        boolean result = repository.findByTanHashAndTanRedeemedIsFalse(hashingService.hash(tan))
                 .filter(t -> t.codeCanBeRedeemed(localDateTimeNow) && t.tanCanBeRedeemed(localDateTimeNow))
                 .map(t -> {
                     Date now = new Date();
@@ -74,6 +76,8 @@ public class VerificationDaoImpl implements VerificationDao {
                     repository.save(t);
                     return true;
                 }).map(t -> true).orElseGet(() -> false);
+        log.debug("Leaving redeemTan() with: {}", result);
+        return result;
     }
 
     @Override
