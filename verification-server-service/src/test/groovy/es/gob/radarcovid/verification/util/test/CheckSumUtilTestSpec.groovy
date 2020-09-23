@@ -37,7 +37,7 @@ class CheckSumUtilTestSpec extends Specification {
         '000000000001' | false
         '123456789122' | true
         '123456789123' | false
-        '900000000009' | true
+        '112358132134' | true
 
     }
 

@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidatorContext;
 @Slf4j
 public class CodeValidator implements ConstraintValidator<CodeConstraint, String> {
 
-    public static final String FAKE_CODE = "900000000009";
+    public static final String FAKE_CODE = "112358132134";
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
