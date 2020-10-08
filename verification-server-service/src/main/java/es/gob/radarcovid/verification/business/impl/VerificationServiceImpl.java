@@ -9,8 +9,21 @@
  */
 package es.gob.radarcovid.verification.business.impl;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import es.gob.radarcovid.common.annotation.Loggable;
-import es.gob.radarcovid.common.exception.VerificationServerException;
+import es.gob.radarcovid.common.exception.RadarCovidServerException;
 import es.gob.radarcovid.verification.api.CodeDto;
 import es.gob.radarcovid.verification.api.CodesResultDto;
 import es.gob.radarcovid.verification.business.VerificationService;
@@ -20,24 +33,11 @@ import es.gob.radarcovid.verification.persistence.VerificationDao;
 import es.gob.radarcovid.verification.security.JwtGenerator;
 import es.gob.radarcovid.verification.signature.CodeSignature;
 import es.gob.radarcovid.verification.util.CheckSumUtil;
+import es.gob.radarcovid.verification.util.DateInfection;
 import es.gob.radarcovid.verification.util.GenerateRandom;
 import es.gob.radarcovid.verification.validation.impl.CodeValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +49,7 @@ public class VerificationServiceImpl implements VerificationService {
     private final GenerateRandom generateRandom;
     private final JwtGenerator jwtGenerator;
     private final CodeSignature codeSignature;
+    private final DateInfection dateInfection;
 
     @Value("${application.dummy.enabled:false}")
     private boolean dummyEnabled;
@@ -68,12 +69,6 @@ public class VerificationServiceImpl implements VerificationService {
     @Value("${application.random.code.size:12}")
     private int randomCodeSize;
 
-    @Value("${application.jwt.onset.default}")
-    private int onsetDefaultDays;
-
-    @Value("${application.jwt.onset.app}")
-    private int onsetAppDays;
-
     @Loggable
     @Override
     public Optional<String> redeemCode(CodeDto codeDto) {
@@ -82,25 +77,18 @@ public class VerificationServiceImpl implements VerificationService {
             Instant validUntilTime = Instant.now().plus(tanValidUntilMinutes, ChronoUnit.MINUTES);
             Date validUntil = Date.from(validUntilTime);
             if (CodeValidator.FAKE_CODE.equals(codeDto.getCode())) {
-                LocalDate exposedLocalDate = LocalDate.now().minusDays(onsetDefaultDays);
-                Date exposedDate = Date.from(exposedLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant());
                 log.debug("Redeem fake code " + CodeValidator.FAKE_CODE);
-                return Optional.of(jwtGenerator.generateJwt(true, CodeValidator.FAKE_CODE, strTan, exposedDate, validUntil));
+				return Optional.of(jwtGenerator.generateJwt(true, CodeValidator.FAKE_CODE, strTan,
+						dateInfection.getDefaultInfectionDate(), validUntil));
             } else if (CheckSumUtil.validateChecksum(codeDto.getCode())) {
                 log.debug("TAN:{}", strTan);
-                if (dao.redeemCode(codeDto.getCode(), strTan, validUntil)) {
-
-                    LocalDate exposedLocalDate = codeDto.getDate() == null ?
-                            LocalDate.now().minusDays(onsetDefaultDays) :
-                            LocalDate.ofInstant(codeDto.getDate().toInstant(), ZoneOffset.UTC).minusDays(onsetAppDays);
-
-                    Date exposedDate = Date.from(exposedLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant());
-
-                    return Optional.of(jwtGenerator.generateJwt(false, codeDto.getCode(), strTan, exposedDate, validUntil));
-                }
+				if (dao.redeemCode(codeDto.getCode(), strTan, validUntil)) {
+					return Optional.of(jwtGenerator.generateJwt(false, codeDto.getCode(), strTan,
+							dateInfection.getInfectionDate(codeDto.getDate()), validUntil));
+				}
             }
         }
-        throw new VerificationServerException(HttpStatus.BAD_REQUEST, "Code " + codeDto + " is invalid");
+        throw new RadarCovidServerException(HttpStatus.BAD_REQUEST, "Code " + codeDto + " is invalid");
     }
 
     @Loggable
