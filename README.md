@@ -44,19 +44,19 @@ Before you continue reading, let us let you know that there is sample code:
 To build the project, you need to run this command:
 
 ```shell
-mvn clean package -P<environment>
+mvn clean package -P <environment>
 ```
 
 Where `<environment>` has these possible values:
 
-- `local-env`. To run the application from local (eg, from IDE o from Maven using `mvn spring-boot:run`). It is the default profile, using [`application-local.yml`](./verification-server-boot/src/main/resources/application-local.yml) configuration file.
-- `docker-env`. To run the application in a Docker container with `docker-compose`, using [`application-docker.yml`](./verification-server-boot/src/main/resources/application-docker.yml) configuration file.
-- `pre-env`. To run the application in the Preproduction environment, using [`application-pre.yml`](./verification-server-boot/src/main/resources/application-pre.yml) configuration file.
-- `pro-env`. To run the application in the Production environment, using [`application-pro.yml`](./verification-server-boot/src/main/resources/application-pro.yml) configuration file.
+- `local-env`. To run the application from local (eg, from IDE o from Maven using `mvn spring-boot:run`). It is the default profile, using [`application.yml`](./verification-server-boot/src/main/resources/application.yml) configuration file. If any properties need to be modified, you can create application-local.yml configuration file.
+- `docker-env`. To run the application in a Docker container with `docker-compose`, using [`application.yml`](./verification-server-boot/src/main/resources/application.yml) configuration file. If any properties need to be modified, you can create application-docker.yml configuration file.
+- `pre-env`. To run the application in the Preproduction environment. Preproduction environment properties are configured in the infrastructure.
+- `pro-env`. To run the application in the Production environment. Production environment properties are configured in the infrastructure.
 
 All profiles will load the default [configuration file](./verification-server-boot/src/main/resources/application.yml).
 
-Private and public keys located on [`application-local.yml`](./verification-server-boot/src/main/resources/application-local.yml) and [`application-docker.yml`](./verification-server-boot/src/main/resources/application-docker.yml) are only for testing on local (running inside IDE or Docker).
+Private and public keys located on [`application.yml`](./verification-server-boot/src/main/resources/application.yml) are only for testing on local (running inside IDE or Docker).
 
 ### Running the Project
 
@@ -92,16 +92,19 @@ Along with the application there comes with [OpenAPI Specification](https://www.
 <base-url>/openapi/api-docs
 ```
 
-If running in local, you can get the OpenAPI accessing http://localhost:8080/openapi/api-docs. You can download the YAML version in `/openapi/api-docs.yaml`.
+You can download the YAML version in `/openapi/api-docs.yaml`
 
-You can get a copy [here](./verification-server-api/api-docs.yaml).
+If running in local, you can get:
+- OpenAPI: http://localhost:8080/openapi/api-docs
+- Swagger UI: http://localhost:8080/openapi/ui 
 
 #### Endpoints
 
 | Endpoint | Description |
 | -------- | ----------- |
 | `/generate?n=<number>` | Generates `n` verification codes to be used by Autonomous Communities |
-| `/verification/code` | Verify provided code |
+| `/verification/code` | Verify provided code. The provided Code is verified to be formerly issued by the Health Authority |
+| `/verification/tan` | Verify provided TAN. Used internally (for DP3T) to verify the TAN provided in the JWT token, which is sent in the positive notification |
 
 ### Generate codes
 
@@ -152,10 +155,11 @@ Verification Service has four modules:
 
 - `verification-server-parent`. Parent Maven project to define dependencies and plugins.
 - `verification-server-api`. [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) exposed.
-- `verification-server-boot`. Main application, global configurations and properties. This module also has integration tests and Java architecture tests with ArchUnit:
+- `verification-server-boot`. Main application, global configurations and properties. This module also has integration tests and Java architecture tests with ArchUnit.
 - `verification-server-service`. Business and data layers.
 
 ## Support and Feedback
+
 The following channels are available for discussions, feedback, and support requests:
 
 | Type       | Channel                                                |
