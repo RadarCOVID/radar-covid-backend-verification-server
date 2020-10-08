@@ -75,6 +75,29 @@ class GenerationControllerTestSpec extends Specification {
         '02'    | 1        | 403         // CCAA 02 is not loaded in database
     }
 
+    @Unroll
+    def 'ask for verification codes with subject [#subject], numCodes [#numCodes] and statusCode [#statusCode] and alg none'(String subject, int numCodes, int statusCode) {
+        given:
+        HttpHeaders httpHeaders = new HttpHeaders()
+
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON)
+        httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON))
+        httpHeaders.set(JwtAuthorizationFilter.AUTHORIZATION_HEADER, JwtAuthorizationFilter.AUTHORIZATION_PREFIX + generateAlgNoneToken(subject))
+
+        HttpEntity<?> request = new HttpEntity<>(httpHeaders)
+
+        when: 'request the generation endpoint'
+        def result = testRestTemplate.exchange('/generate?n={number}', HttpMethod.GET, request, CodesResultDto.class, numCodes)
+
+        then:
+        result.statusCode.value == statusCode
+        (result.statusCode.is2xxSuccessful() && result.body.codes.size() == numCodes && validateResponse(result.body.signature, result.body.codes)) || !(result.statusCode.is2xxSuccessful())
+
+        where:
+        subject | numCodes | statusCode
+        '01'    | 5        | 403         // CCAA 01 is loaded in database
+    }
+
     def generateToken(String subject) throws Exception {
         String strPrivateKey = KeyVault.loadKey(PRIVATE_KEY_FILE)
         ECPrivateKey privateKey = (ECPrivateKey) KeyVault.loadPrivateKeyFromPem(strPrivateKey, ALGORITHM_EC)
@@ -91,6 +114,24 @@ class GenerationControllerTestSpec extends Specification {
                 .withIssuedAt(Date.from(issuedAt))
                 .withExpiresAt(Date.from(expiresAt))
                 .sign(algorithm)
+    }
+
+    def generateAlgNoneToken(String subject) throws Exception {
+        String strPrivateKey = KeyVault.loadKey(PRIVATE_KEY_FILE)
+        ECPrivateKey privateKey = (ECPrivateKey) KeyVault.loadPrivateKeyFromPem(strPrivateKey, ALGORITHM_EC)
+
+        Algorithm algorithm = Algorithm.ECDSA512(null, privateKey)
+
+        Instant issuedAt = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+        Instant expiresAt = issuedAt.plus(TOKEN_MINS_EXPIRES, ChronoUnit.MINUTES)
+
+        return JWT.create()
+                .withJWTId(UUID.randomUUID().toString())
+                .withSubject(subject)
+                .withIssuer(CCAA_ISSUER)
+                .withIssuedAt(Date.from(issuedAt))
+                .withExpiresAt(Date.from(expiresAt))
+                .sign(Algorithm.none())
     }
 
     def validateResponse(String responseSignature, List<String> codes) throws Exception {
