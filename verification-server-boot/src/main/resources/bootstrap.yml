@@ -1,0 +1,3 @@
+aws:
+  paramstore:
+    enabled: ${AWS_PARAMSTORE_ENABLED:false}

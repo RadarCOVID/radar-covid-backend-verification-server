@@ -22,13 +22,15 @@ management:
   server.port: ${MANAGEMENT_PORT:8080}
 
 spring:
+  application:
+    name: verification
   lifecycle.timeout-per-shutdown-phase: ${LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE:20s}
   datasource:
     initialization-mode: never
     continue-on-error: false
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USER}
-    password: ${DATABASE_PSW}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/RADARCOVID?schema=verification}
+    username: ${DATABASE_USER:radarcovid}
+    password: ${DATABASE_PSW:radarcovid}
     hikari:
       minimum-idle: ${DATABASE_MIN_IDLE:5}
       maximum-pool-size: ${DATABASE_MAX_IDLE:20}
@@ -51,7 +53,15 @@ spring:
   security:
     user:
       name: ${SECURITY_USER_NAME:radar}
-      password: ${SECURITY_USER_PASSWORD}
+      password: ${SECURITY_USER_PASSWORD:radarcovid}
+
+cloud:
+  aws:
+    region:
+      auto: ${CLOUD.AWS.REGION.AUTO:false}
+      static: ${CLOUD.AWS.REGION.STATIC:eu-west-1}
+    stack:
+      auto: ${CLOUD.AWS.STACK.AUTO:false}
 
 springdoc:
   api-docs:
@@ -62,6 +72,7 @@ springdoc:
     enabled: ${OPENAPI_ENABLED:true}
 
 application:
+  retention-days: ${RETENTION_DAYS:14}
   cache:
     enabled: ${CACHE_ENABLED:true}
     max-size: ${CACHE_MAX_SIZE:200}
@@ -87,21 +98,25 @@ application:
     code.size: ${VERIFICATION_CODE_SIZE:12}
     tan.size: ${VERIFICATION_TAN_SIZE:256}
   credentials:
-    privateKey: ${CREDENTIALS_PRIVATE_KEY}
-    publicKey: ${CREDENTIALS_PUBLIC_KEY}
+    privateKey: ${CREDENTIALS_PRIVATE_KEY:LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSHVBZ0VBTUJBR0J5cUdTTTQ5QWdFR0JTdUJCQUFqQklIV01JSFRBZ0VCQkVJQkEvVmRTM21lWEFkQ0ZhdmoKQ2t4dGxPbnErT1lNSUlHQVlSQW9vYnRCRDdpV2ZhT2xYZ1UvaU9mdVRjaG5GZ0txR1dSUGZJeUVFcmp3OEcrZQppbGJQSGlDaGdZa0RnWVlBQkFGdkF5bXl5bE00UEVnaFg5SzZXV0JMaE5OamNCVi9ycjVvZlpVSlpsb0xlTG1pCkIrcWpZNUVnSkNGOGJyVEJVUE81S01FRWhtTHJXWlhBRExtcXRNb2R1Z0RFTFdLdHVjeGZ5aVJENXFOOFliL2cKOHl2Mk9GT29tT0xkeThMSTNVQi9vUi91QW5OY3BGcGQrNXFzdE14UitoWnhiWWhpa1QyMDBpemNjdDgrRGNldQpJUT09Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K}
+    publicKey: ${CREDENTIALS_PUBLIC_KEY:LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHYk1CQUdCeXFHU000OUFnRUdCU3VCQkFBakE0R0dBQVFCYndNcHNzcFRPRHhJSVYvU3VsbGdTNFRUWTNBVgpmNjYrYUgyVkNXWmFDM2k1b2dmcW8yT1JJQ1FoZkc2MHdWRHp1U2pCQklaaTYxbVZ3QXk1cXJUS0hib0F4QzFpCnJibk1YOG9rUSthamZHRy80UE1yOWpoVHFKamkzY3ZDeU4xQWY2RWY3Z0p6WEtSYVhmdWFyTFRNVWZvV2NXMkkKWXBFOXROSXMzSExmUGczSHJpRT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==}
   dummy:
-    enabled: false
+    enabled: ${DUMMY_ENABLED:true}
+    ccaa: ${DUMMY_CCAA:DUMMY}
+    privateKey: ${DUMMY_PRIVATE_KEY:LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSHVBZ0VBTUJBR0J5cUdTTTQ5QWdFR0JTdUJCQUFqQklIV01JSFRBZ0VCQkVJQTVvRVgvV0srNG1PZlZFK0gKWXVXN2RCUEsvV1JXYS80dGFBU0YxVkx1UHMyMVltVE9BQzdyamk0WmdZWk9scXNVYTc3VndXYmVJZ1RKR25KeAo5bnZhdDNDaGdZa0RnWVlBQkFBYjExQTl1VHdnamJpSnFNOGdvUEJCTmd1eHNkaHkxMTN4SzlFY2lpMUQybjA4Ck5KazloNDc0bzhhU0tFWUpTSnd6MmphL1gzZ2RMV0tPNmhOWmhxcWdDZ0V1dHEzQWh3WTJOOXRXOXZwVFJTbzAKTklCRW9wTEh2SkdOaVU1NEZ6c3V2dDJ3Z3ZrNFY2N2t4UUtJT2JNRkdnaVVWVERLWTBmQ0V0cWFJcW9RdE5qYgovdz09Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K}
+    publicKey: ${DUMMY_PUBLIC_KEY:LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHYk1CQUdCeXFHU000OUFnRUdCU3VCQkFBakE0R0dBQVFBRzlkUVBiazhJSTI0aWFqUElLRHdRVFlMc2JIWQpjdGRkOFN2UkhJb3RROXA5UERTWlBZZU8rS1BHa2loR0NVaWNNOW8ydjE5NEhTMWlqdW9UV1lhcW9Bb0JMcmF0CndJY0dOamZiVnZiNlUwVXFORFNBUktLU3g3eVJqWWxPZUJjN0xyN2RzSUw1T0ZldTVNVUNpRG16QlJvSWxGVXcKeW1OSHdoTGFtaUtxRUxUWTIvOD0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==}
   jwt:
-    subject: ${JWT_RADAR_SUBJECT}
-    issuer: ${JWT_RADAR_ISSUER}
+    subject: ${JWT_RADAR_SUBJECT:99}
+    issuer: ${JWT_RADAR_ISSUER:sedia-radarcovid}
     onset:
       default: ${JWT_ONSET_DEFAULT:5} # días antes si no informan fecha desde app
       app: ${JWT_ONSET_APP:2} # días antes si informan fecha desde app
-    minutes: ${JWT_MINUTES_EXPIRATION:15} 
- 
+    minutes: ${JWT_MINUTES_EXPIRATION:15}
+
 logging:
   pattern:
-    console: '[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1} - [%X{TRACKING}] [%X{X-B3-TraceId}] - %msg%n'
+    console: '[%-5level] %c{1} - [%X{TRACKING}] [%X{X-B3-TraceId},%X{X-Amz-Cf-Id}] - %msg%n'
   level:
     root: info
     es.gob.radarcovid: debug
+    com.amazonaws: error

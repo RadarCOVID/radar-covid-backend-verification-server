@@ -10,14 +10,20 @@
 package es.gob.radarcovid.verification.etc;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "application.jwt")
 @Data
 public class RadarCovidProperties {
+	
+	@Value("${application.jwt.subject}")
     private String subject;
+	
+	@Value("${application.jwt.issuer}")
     private String issuer;
-    private int minutes;
+	
+	@Value("${application.jwt.minutes}")
+    private long minutes;
 }

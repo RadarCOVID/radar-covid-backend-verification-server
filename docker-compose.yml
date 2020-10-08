@@ -12,9 +12,6 @@ services:
       DATABASE_USER: radarcovid
       DATABASE_PSW: radarcovid
       DATABASE_SCHEMA: verification
-      JWT_RADAR_ISSUER: RadarCOVID
-      JWT_RADAR_SUBJECT: 99
-      SECURITY_USER_PASSWORD: covid
     depends_on:
       - postgres
     ports:
