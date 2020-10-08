@@ -11,14 +11,12 @@ package es.gob.radarcovid.verification.validation.impl;
 
 import es.gob.radarcovid.verification.util.CheckSumUtil;
 import es.gob.radarcovid.verification.validation.CodeConstraint;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-@RequiredArgsConstructor
 @Slf4j
 public class CodeValidator implements ConstraintValidator<CodeConstraint, String> {
 

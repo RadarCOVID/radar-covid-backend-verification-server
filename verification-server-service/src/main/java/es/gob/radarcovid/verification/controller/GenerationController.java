@@ -11,7 +11,7 @@ package es.gob.radarcovid.verification.controller;
 
 import com.sun.istack.NotNull;
 import es.gob.radarcovid.common.annotation.Loggable;
-import es.gob.radarcovid.common.handler.SediaExceptionHandler;
+import es.gob.radarcovid.common.handler.RadarCovidExceptionHandler;
 import es.gob.radarcovid.verification.api.CodesResultDto;
 import es.gob.radarcovid.verification.api.MessageResponseDto;
 import es.gob.radarcovid.verification.business.VerificationService;
@@ -76,8 +76,7 @@ public class GenerationController {
     )
     public Callable<ResponseEntity<?>> getCodes(Authentication authentication, @RequestParam("n") @NotNull @Min(1) Integer number) {
         String ccaa = getCCAAFromAuthentication(authentication);
-        String tracking = MDC.get(Constants.TRACKING);
-        MDC.put(Constants.TRACKING, "GET_CODES|" + tracking + ",CCAA:" + ccaa + ",NUMBER:" + String.valueOf(number));
+        MDC.put(Constants.TRACKING, "GET_CODES|CCAA:" + ccaa + ",NUMBER:" + String.valueOf(number));
         if (number != null && 0 < number && number <= maxCodes) {
             CodesResultDto result = service.getCodes(isRadarCovidAuthentication(authentication), ccaa, number);
             if (result != null && result.getCodes() != null && !result.getCodes().isEmpty()) {
@@ -87,14 +86,14 @@ public class GenerationController {
                 };
             } else {
                 return () -> {
-                    return SediaExceptionHandler.buildResponseMessage(HttpStatus.BAD_REQUEST, "");
+                    return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.BAD_REQUEST, "");
                 };
             }
         } else {
             String message = "Number of codes (" + number + ") must be between 1 and the maximum (" + maxCodes + ")";
             log.warn(message);
             return () -> {
-                return SediaExceptionHandler.buildResponseMessage(HttpStatus.BAD_REQUEST, message);
+                return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.BAD_REQUEST, message);
             };
         }
 

@@ -24,6 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 public class MdcTrackingHandlerInterceptor implements HandlerInterceptor {
 
     @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
+                             Object handler) throws Exception {
+        MDC.remove(Constants.TRACKING);
+        return true;
+    }
+
+    @Override
     public void postHandle(final HttpServletRequest request,
                            final HttpServletResponse response,
                            final Object handler,

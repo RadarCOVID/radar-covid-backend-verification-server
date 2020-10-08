@@ -9,7 +9,7 @@
  */
 package es.gob.radarcovid.verification.config;
 
-import es.gob.radarcovid.common.exception.VerificationServerException;
+import es.gob.radarcovid.common.exception.RadarCovidServerException;
 import es.gob.radarcovid.common.security.KeyVault;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +61,7 @@ public class SecurityConfiguration {
             log.debug("Loaded radar keys");
             return new KeyVault(radar);
         } catch (KeyVault.PrivateKeyNoSuitableEncodingFoundException | KeyVault.PublicKeyNoSuitableEncodingFoundException e) {
-            throw new VerificationServerException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw new RadarCovidServerException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

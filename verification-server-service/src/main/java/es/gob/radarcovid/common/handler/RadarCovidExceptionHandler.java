@@ -10,7 +10,7 @@
 package es.gob.radarcovid.common.handler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import es.gob.radarcovid.common.exception.VerificationServerException;
+import es.gob.radarcovid.common.exception.RadarCovidServerException;
 import es.gob.radarcovid.common.security.KeyVault;
 import es.gob.radarcovid.verification.api.MessageResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +28,12 @@ import org.springframework.web.context.request.WebRequest;
 
 import javax.naming.AuthenticationException;
 import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import java.security.spec.InvalidKeySpecException;
 
 @RestControllerAdvice
 @Slf4j
-public class SediaExceptionHandler {
+public class RadarCovidExceptionHandler {
 
     /**
      * This method handles Bad Requests.
@@ -65,11 +66,19 @@ public class SediaExceptionHandler {
         return buildResponseMessage(HttpStatus.BAD_REQUEST, "Validation failed");
     }
 
-    @ExceptionHandler(
+    @ExceptionHandler({
             ConstraintViolationException.class
-    )
-    public ResponseEntity<MessageResponseDto> handleConstraintViolationExceptions(ConstraintViolationException ex, WebRequest wr) {
+    })
+    public ResponseEntity<MessageResponseDto> handleConstraintViolationException(ConstraintViolationException ex, WebRequest wr) {
         log.error("Validation exceptions: {}", ex.getConstraintViolations());
+        return buildResponseMessage(HttpStatus.BAD_REQUEST, "Validation failed");
+    }
+
+    @ExceptionHandler({
+            ValidationException.class
+    })
+    public ResponseEntity<MessageResponseDto> handleValidationExceptions(ValidationException ex, WebRequest wr) {
+        log.error("Validation exceptions: {}", ex.getMessage());
         return buildResponseMessage(HttpStatus.BAD_REQUEST, "Validation failed");
     }
 
@@ -79,8 +88,8 @@ public class SediaExceptionHandler {
      * @param exception the thrown exception
      * @return ResponseEntity<?> returns a HTTP Status
      */
-    @ExceptionHandler(VerificationServerException.class)
-    public ResponseEntity<MessageResponseDto> handleVerificationServerExceptions(VerificationServerException exception) {
+    @ExceptionHandler(RadarCovidServerException.class)
+    public ResponseEntity<MessageResponseDto> handleVerificationServerExceptions(RadarCovidServerException exception) {
         log.warn("The verification server response preventation due to: {}", exception.getMessage());
         return buildResponseMessage(exception.getHttpStatus(), "Validation failed");
     }

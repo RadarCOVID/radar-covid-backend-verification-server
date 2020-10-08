@@ -10,7 +10,7 @@
 package es.gob.radarcovid.verification.controller;
 
 import es.gob.radarcovid.common.annotation.Loggable;
-import es.gob.radarcovid.common.handler.SediaExceptionHandler;
+import es.gob.radarcovid.common.handler.RadarCovidExceptionHandler;
 import es.gob.radarcovid.verification.api.CodeDto;
 import es.gob.radarcovid.verification.api.MessageResponseDto;
 import es.gob.radarcovid.verification.api.TanDto;
@@ -94,7 +94,7 @@ public class VerificationController {
         } else {
             log.warn("The Code {} is invalid", codeDto);
             return () -> {
-                return SediaExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND, "Invalid code " + codeDto.getCode());
+                return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND, "Invalid code " + codeDto.getCode());
             };
         }
     }
@@ -127,12 +127,12 @@ public class VerificationController {
         if (result) {
             log.info("The TAN {} is valid", tan);
             return () -> {
-                return SediaExceptionHandler.buildResponseMessage(HttpStatus.OK, "TAN " + tan.getTan() + " verified");
+                return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.OK, "TAN " + tan.getTan() + " verified");
             };
         } else {
             log.warn("The TAN {} is invalid", tan);
             return () -> {
-                return SediaExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND, "Invalid TAN " + tan.getTan());
+                return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND, "Invalid TAN " + tan.getTan());
             };
         }
     }

@@ -13,7 +13,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class VerificationServerException extends RuntimeException {
+public class RadarCovidServerException extends RuntimeException {
 
     private final HttpStatus httpStatus;
 
@@ -23,7 +23,7 @@ public class VerificationServerException extends RuntimeException {
      * @param httpStatus the state of the server
      * @param message    the message
      */
-    public VerificationServerException(HttpStatus httpStatus, String message) {
+    public RadarCovidServerException(HttpStatus httpStatus, String message) {
         super(message);
         this.httpStatus = httpStatus;
     }
