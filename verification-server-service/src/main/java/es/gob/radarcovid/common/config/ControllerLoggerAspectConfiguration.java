@@ -61,7 +61,9 @@ public class ControllerLoggerAspectConfiguration {
                     while (headerNames.hasMoreElements()) {
                         String headerName = headerNames.nextElement();
                         String headerValue = request.getHeader(headerName);
-                        log.debug("Controller : [Header Name]:{}|[Header Value]:{}", headerName, headerValue);
+                        if (!headerName.startsWith("x-forwarded")) {
+                        	log.debug("Controller : [Header Name]:{}|[Header Value]:{}", headerName, headerValue);
+                        }
                     }
                     log.debug("Controller : Request Path info : {}", request.getServletPath());
                     log.debug("Controller : End Header Section of request ");
@@ -77,7 +79,7 @@ public class ControllerLoggerAspectConfiguration {
         @AfterThrowing(pointcut = "execution(@es.gob.radarcovid.common.annotation.Loggable * *..controller..*(..))", throwing = "exception")
         public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
             log.error("Controller : An exception has been thrown in {} ()", joinPoint.getSignature().getName());
-            log.error("Controller : Cause : " + exception.getCause());
+            log.error("Controller : Cause : {}", exception.getCause());
             log.debug("************************* END CONTROLLER **********************************");
         }
 
