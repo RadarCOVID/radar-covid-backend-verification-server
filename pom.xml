@@ -13,7 +13,7 @@
 
     <groupId>es.gob.radarcovid</groupId>
     <artifactId>verification-server-parent</artifactId>
-    <version>1.0.2.RELEASE</version>
+    <version>1.0.3.RELEASE</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Verification Service</description>
     <packaging>pom</packaging>

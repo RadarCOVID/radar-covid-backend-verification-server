@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.3.RELEASE] - 2020-10-09
+
 ### Added
 
 - Configured AWS Parameters Store for service property management.
@@ -30,7 +32,7 @@ All notable changes to this project will be documented in this file.
 
 - Fixed contact email in THIRD-PARTY-NOTICES file
 
-## [1.0.2] - 2020-09-15
+## [1.0.2.RELEASE] - 2020-09-15
 
 * Verification Service. Initial version.
 
@@ -40,4 +42,6 @@ All notable changes to this project will be documented in this file.
 - Verification code service, through which the code is verified to be formerly issued by the Health Authority.
 - Verification TAN service, through which is checked the TAN provided in the JWT token, which is sent in the positive notification.
 
-[1.0.2]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/releases/tag/1.0.2.RELEASE
+[Unreleased]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.0.3.RELEASE...develop
+[1.0.3.RELEASE]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.0.2.RELEASE...1.0.3.RELEASE
+[1.0.2.RELEASE]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/releases/tag/1.0.2.RELEASE
