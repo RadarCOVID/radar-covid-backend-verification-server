@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import es.gob.radarcovid.common.annotation.ResponseRetention;
 import es.gob.radarcovid.common.exception.RadarCovidServerException;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,7 +59,11 @@ public class ResponseRetentionAspectConfiguration {
                 long responseRetentionTimeMillis = getTimeMillis(responseRetention.time());
                 log.debug("Controller : Controller {}.{} () execution time : {} ms", className, methodName, elapsedTime);
                 if (elapsedTime < responseRetentionTimeMillis) {
-                	Thread.sleep(responseRetentionTimeMillis - elapsedTime);
+                	try {
+                		Thread.sleep(responseRetentionTimeMillis - elapsedTime);
+                	} catch (InterruptedException e) {
+						log.warn("Controller : Controller {}.{} () Thread sleep interrupted", className, methodName);
+					}
                 }
                 elapsedTime = System.currentTimeMillis() - start;
                 log.debug("Controller : Controller {}.{} () NEW execution time : {} ms", className, methodName, elapsedTime);
