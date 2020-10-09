@@ -78,6 +78,12 @@ application:
     max-size: ${CACHE_MAX_SIZE:200}
     time-to-live: ${CACHE_TIME_TO_LIVE:5} # minutes
     max-idle: ${CACHE_MAX_IDLE:20} # seconds
+  response:
+    retention:
+      enabled: ${RESPONSE_RETENTION_ENABLED:false}
+      time:
+        verify:
+          code: ${RESPONSE_RETENTION_TIME_VERIFY_CODE:300} # milliseconds
   log:
     enabled: ${LOGGABLE_ENABLED:true}
   openapi:

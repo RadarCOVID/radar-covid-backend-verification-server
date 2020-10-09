@@ -10,6 +10,7 @@
 package es.gob.radarcovid.verification.controller;
 
 import es.gob.radarcovid.common.annotation.Loggable;
+import es.gob.radarcovid.common.annotation.ResponseRetention;
 import es.gob.radarcovid.common.handler.RadarCovidExceptionHandler;
 import es.gob.radarcovid.verification.api.CodeDto;
 import es.gob.radarcovid.verification.api.MessageResponseDto;
@@ -66,6 +67,7 @@ public class VerificationController {
      * @return HTTP 200, if the verification was successful. Otherwise HTTP 404.
      */
     @Loggable
+    @ResponseRetention(time = "application.response.retention.time.verify.code")
     @Operation(
             summary = "Verify provided Code",
             description = "The provided Code is verified to be formerly issued by the Health Authority",
