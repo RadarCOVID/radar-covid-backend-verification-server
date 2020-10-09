@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Setted responses retention time on fake requests
+
+### Fixed
+
+- Fixed messages in aspects.
+
 ## [1.0.3.RELEASE] - 2020-10-09
 
 ### Added
