@@ -71,15 +71,11 @@ public class ControllerLoggerAspectConfiguration {
             }
         }
 
-        @AfterReturning(pointcut = "execution(@es.gob.radarcovid.common.annotation.Loggable * *..controller..*(..))", returning = "result")
-        public void logAfter(JoinPoint joinPoint, Object result) {
-            log.debug("************************* END CONTROLLER **********************************");
-        }
-
         @AfterThrowing(pointcut = "execution(@es.gob.radarcovid.common.annotation.Loggable * *..controller..*(..))", throwing = "exception")
         public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
             log.error("Controller : An exception has been thrown in {} ()", joinPoint.getSignature().getName());
             log.error("Controller : Cause : {}", exception.getCause());
+            log.error("Controller : Message : {}", exception.getMessage());
             log.debug("************************* END CONTROLLER **********************************");
         }
 
@@ -109,7 +105,7 @@ public class ControllerLoggerAspectConfiguration {
                     }
                     log.debug("Controller : End Header Section of response ");
                 }
-
+                log.debug("************************* END CONTROLLER **********************************");
                 return result;
 
             } catch (IllegalArgumentException e) {
@@ -118,7 +114,6 @@ public class ControllerLoggerAspectConfiguration {
                 throw e;
             }
         }
-
     }
 
 }

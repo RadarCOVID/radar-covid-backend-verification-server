@@ -41,15 +41,11 @@ public class MethodLoggerAspectConfiguration {
             }
         }
 
-        @AfterReturning(pointcut = "execution(@es.gob.radarcovid.common.annotation.Loggable * *..business.impl..*(..))", returning = "result")
-        public void logAfter(JoinPoint joinPoint, Object result) {
-            log.debug("   ************************** END SERVICE ******************************");
-        }
-
         @AfterThrowing(pointcut = "execution(@es.gob.radarcovid.common.annotation.Loggable * *..business.impl..*(..))", throwing = "exception")
         public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
             log.error("   Service :  An exception has been thrown in {} ()", joinPoint.getSignature().getName());
             log.error("   Service :  Cause : {}", exception.getCause());
+            log.error("   Service :  Message : {}", exception.getMessage());
             log.debug("   ************************** END SERVICE ******************************");
         }
 
@@ -63,12 +59,13 @@ public class MethodLoggerAspectConfiguration {
                 Object result = joinPoint.proceed();
                 long elapsedTime = System.currentTimeMillis() - start;
                 log.debug("   Service :  {}.{} () execution time: {} ms", className, methodName, elapsedTime);
-
+                log.debug("   ************************** END SERVICE ******************************");
                 return result;
 
             } catch (IllegalArgumentException e) {
                 log.error("   Service :  Illegal argument {} in {}()", Arrays.toString(joinPoint.getArgs()),
                           joinPoint.getSignature().getName(), e);
+                log.debug("   ************************** END SERVICE ******************************");
                 throw e;
             }
         }
