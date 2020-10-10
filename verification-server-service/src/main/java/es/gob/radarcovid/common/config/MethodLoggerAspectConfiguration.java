@@ -15,6 +15,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 public class MethodLoggerAspectConfiguration {
 
     @Aspect
+    @Order(2)
     @Component
     public class MethodLoggerAspect {
         @Before("execution(@es.gob.radarcovid.common.annotation.Loggable * *..business.impl..*(..))")

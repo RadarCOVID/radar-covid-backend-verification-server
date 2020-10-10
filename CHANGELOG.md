@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Setted responses retention time on fake requests
+- Setted responses retention time on fake requests.
+- AOP aspects ordering. 
 
 ### Fixed
 

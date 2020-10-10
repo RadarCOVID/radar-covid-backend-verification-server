@@ -15,6 +15,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,7 @@ public class ControllerLoggerAspectConfiguration {
             .getName() + ".ATTRIBUTE_NAME";
 
     @Aspect
+    @Order(1)
     @Component
     public class ControllerLoggerAspect {
         @Before("execution(@es.gob.radarcovid.common.annotation.Loggable * *..controller..*(..))")

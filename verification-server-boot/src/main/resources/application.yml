@@ -19,7 +19,12 @@ management:
   endpoints:
     enabled-by-default: ${MANAGEMENT_ENDPOINTS_ENABLED:true}
     web.exposure.include: '*'
-  server.port: ${MANAGEMENT_PORT:8080}
+  server.port: ${MANAGEMENT_PORT:-1}
+  metrics:
+    export:
+      cloudwatch:
+        namespace: verification
+        batch-size: 20
 
 spring:
   application:
