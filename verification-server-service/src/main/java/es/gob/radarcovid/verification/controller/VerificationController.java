@@ -19,6 +19,7 @@ import es.gob.radarcovid.verification.api.TokenResponseDto;
 import es.gob.radarcovid.verification.business.VerificationService;
 import es.gob.radarcovid.verification.etc.Constants;
 import es.gob.radarcovid.verification.etc.OpenApiConstants;
+import es.gob.radarcovid.verification.validation.impl.CodeValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -89,7 +90,11 @@ public class VerificationController {
         Optional<String> result = service.redeemCode(codeDto);
         if (result.isPresent()) {
             TokenResponseDto response = new TokenResponseDto(result.get());
-            log.info("The Code {} is valid - JWT token {}", codeDto, response);
+            if (!CodeValidator.FAKE_CODE.equals(codeDto.getCode())) {
+                log.info("The Code {} is valid - JWT token {}", codeDto, response);
+            } else {
+                log.debug("Fake Code {} is valid - JWT token {}", codeDto, response);
+            }
             return () -> {
                 return ResponseEntity.ok(response);
             };

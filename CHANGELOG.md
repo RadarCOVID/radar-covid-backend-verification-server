@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - Setted responses retention time on fake requests.
 - AOP aspects ordering. 
 
+### Changed
+
+- Log in debug mode fake keys.
+
 ### Fixed
 
 - Fixed messages in aspects.
