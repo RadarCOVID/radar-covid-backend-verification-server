@@ -44,10 +44,10 @@
         <dependency-check-maven.version>6.0.2</dependency-check-maven.version>
         <groovy.version>3.0.5</groovy.version>
         <jackson-bom.version>2.11.2</jackson-bom.version>
-        <jsonwebtoken.version>0.11.2</jsonwebtoken.version>
         <log4j2.version>2.13.3</log4j2.version>
         <lombok.version>1.18.12</lombok.version>
         <mapstruct.version>1.4.0.Final</mapstruct.version>
+        <micrometer-registry-cloudwatch2.version>1.5.5</micrometer-registry-cloudwatch2.version>
         <spock.version>2.0-M3-groovy-3.0</spock.version>
         <springdoc-openapi.version>1.4.8</springdoc-openapi.version>
         <testcontainers.version>1.15.0-rc2</testcontainers.version>
@@ -126,17 +126,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Imports -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-aws-parameter-store-config</artifactId>
-                <version>${spring-cloud-starter-aws.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -169,6 +165,25 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- AWS -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-aws-autoconfigure</artifactId>
+                <version>2.2.4.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-aws-actuator</artifactId>
+                <version>${spring-cloud-starter-aws.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-aws-parameter-store-config</artifactId>
+                <version>${spring-cloud-starter-aws.version}</version>
+            </dependency>
+
+            <!-- Verification -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>verification-server-api</artifactId>
@@ -179,6 +194,8 @@
                 <artifactId>verification-server-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Springdoc -->
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-webmvc-core</artifactId>
@@ -194,11 +211,14 @@
                 <artifactId>springdoc-openapi-security</artifactId>
                 <version>${springdoc-openapi.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>1.66</version>
             </dependency>
+
+            <!-- Apache -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
@@ -209,6 +229,12 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>3.11</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-web</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-component-annotations</artifactId>
@@ -229,26 +255,20 @@
                 <artifactId>mapstruct-processor</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-api</artifactId>
-                <version>${jsonwebtoken.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-jackson</artifactId>
-                <version>${jsonwebtoken.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-impl</artifactId>
-                <version>${jsonwebtoken.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.auth0</groupId>
                 <artifactId>java-jwt</artifactId>
                 <version>${auth-jwt.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-cloudwatch2</artifactId>
+                <version>${micrometer-registry-cloudwatch2.version}</version>
+            </dependency>
+
+            <!-- Testing -->
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit-junit5</artifactId>
@@ -271,11 +291,6 @@
                 <artifactId>postgresql</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-web</artifactId>
-                <version>${log4j2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
