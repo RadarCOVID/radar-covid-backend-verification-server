@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public interface VerificationService {
 
-    Optional<String> redeemCode(CodeDto codeDto);
+    Optional<String> redeemCode(CodeDto codeDto, boolean efgsSharing);
 
     boolean redeemTan(String tan);
 

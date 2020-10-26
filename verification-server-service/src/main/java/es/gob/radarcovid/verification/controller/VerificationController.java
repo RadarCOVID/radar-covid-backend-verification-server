@@ -33,10 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Optional;
@@ -58,6 +55,9 @@ public class VerificationController {
      * The route to the code verification endpoint.
      */
     public static final String CODE_VERIFY_ROUTE = "/code";
+
+
+    private static final String EFGS_HEADER = "X-EFGS-Sharing";
 
     private final VerificationService service;
 
@@ -85,24 +85,25 @@ public class VerificationController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public Callable<ResponseEntity<?>> verifyCode(
-            @Parameter(description = "The Code to be verified", required = true, schema = @Schema(implementation = CodeDto.class)) @Valid @RequestBody CodeDto codeDto) {
-        MDC.put(Constants.TRACKING, "VERIFY_CODE|CODE:" + codeDto.getCode());
-        Optional<String> result = service.redeemCode(codeDto);
+            @Parameter(description = "The Code to be verified", required = true, schema = @Schema(implementation = CodeDto.class)) @Valid @RequestBody CodeDto codeDto,
+            @RequestHeader(value = EFGS_HEADER, required = false, defaultValue = "0") @Parameter(description = "EFGS sharing flag (0 = disabled; 1 = enabled)", example = "1") String efgsSharingHeader) {
+
+        MDC.put(Constants.TRACKING, "VERIFY_CODE|CODE:" + codeDto.getCode() + "|SHARING:" + efgsSharingHeader);
+        boolean efgsSharing = "1".equals(efgsSharingHeader);
+
+        Optional<String> result = service.redeemCode(codeDto, efgsSharing);
         if (result.isPresent()) {
             TokenResponseDto response = new TokenResponseDto(result.get());
             if (!CodeValidator.FAKE_CODE.equals(codeDto.getCode())) {
                 log.info("The Code {} is valid - JWT token {}", codeDto, response);
             } else {
-                log.debug("Fake Code {} is valid - JWT token {}", codeDto, response);
+                log.info("Fake Code {} - JWT token {}", codeDto, response);
             }
-            return () -> {
-                return ResponseEntity.ok(response);
-            };
+            return () -> ResponseEntity.ok(response);
         } else {
             log.warn("The Code {} is invalid", codeDto);
-            return () -> {
-                return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND, "Invalid code " + codeDto.getCode());
-            };
+            return () -> RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND,
+                                                                         "Invalid code " + codeDto.getCode());
         }
     }
 
@@ -129,18 +130,17 @@ public class VerificationController {
     )
     public Callable<ResponseEntity<?>> verifyTan(
             @Parameter(description = "The Transaction Number (TAN) to be verified", required = true, schema = @Schema(implementation = TanDto.class)) @Valid @RequestBody TanDto tan) {
-        MDC.put(Constants.TRACKING, "VERIFY_TAN|TAN:" + tan.getTan().substring(0,10) + "..." + tan.getTan().substring(245,256));
+        MDC.put(Constants.TRACKING,
+                "VERIFY_TAN|TAN:" + tan.getTan().substring(0, 10) + "..." + tan.getTan().substring(245, 256));
         boolean result = service.redeemTan(tan.getTan());
         if (result) {
             log.info("The TAN {} is valid", tan);
-            return () -> {
-                return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.OK, "TAN " + tan.getTan() + " verified");
-            };
+            return () -> RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.OK,
+                                                                         "TAN " + tan.getTan() + " verified");
         } else {
             log.warn("The TAN {} is invalid", tan);
-            return () -> {
-                return RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND, "Invalid TAN " + tan.getTan());
-            };
+            return () -> RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND,
+                                                                         "Invalid TAN " + tan.getTan());
         }
     }
 

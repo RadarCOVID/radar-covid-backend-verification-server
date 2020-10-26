@@ -55,14 +55,14 @@ class VerificationServiceTestSpec extends Specification {
     }
 
     @Unroll
-    def 'redeem code with radarCovid [#radarCovid], ccaa [#ccaa] and number [#number]'(boolean radarCovid, String ccaa, int number) {
+    def 'redeem code with radarCovid [#radarCovid], ccaa [#ccaa] and number [#number]'(boolean radarCovid, String ccaa, int number, boolean efgsSharing) {
         given:
         def codes = service.getCodes(radarCovid, ccaa, number)
         def codeDto = new CodeDto()
         codeDto.code = codes.codes.first()
 
         when:
-        def jwt = service.redeemCode(codeDto)
+        def jwt = service.redeemCode(codeDto, efgsSharing)
         def decodedJWT = JWT.decode(jwt.get())
         def codeHash = hashingService.hash(codes.codes.first())
         def entityCode = repository.findByCodeHashAndCodeRedeemedIsFalse(codeHash)
@@ -73,6 +73,7 @@ class VerificationServiceTestSpec extends Specification {
         then:
         decodedJWT.subject == codes.codes.first()
         decodedJWT.getClaim('scope').asString() == 'exposed'
+        decodedJWT.getClaim('efgs').asBoolean() == efgsSharing
         entityCode.get()
         entityCode.get().ccaa == ccaa
         entityCode.get().codeHash == codeHash
@@ -83,8 +84,8 @@ class VerificationServiceTestSpec extends Specification {
         entityCode.get().id == entityTan.get().id
 
         where:
-        radarCovid | ccaa | number
-        false      | '01' | 1
+        radarCovid | ccaa | number | efgsSharing
+        false      | '01' | 1      | true
     }
 
     @Unroll
@@ -95,7 +96,7 @@ class VerificationServiceTestSpec extends Specification {
         codeDto.code = codes.codes.first()
 
         when:
-        def jwt = service.redeemCode(codeDto)
+        def jwt = service.redeemCode(codeDto, false)
         def decodedJWT = JWT.decode(jwt.get())
 
         def codeHash = hashingService.hash(codes.codes.first())

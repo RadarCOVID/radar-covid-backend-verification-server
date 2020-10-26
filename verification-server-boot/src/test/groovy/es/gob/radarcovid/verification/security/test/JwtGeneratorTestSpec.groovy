@@ -27,12 +27,12 @@ class JwtGeneratorTestSpec extends Specification {
     JwtGenerator jwtGenerator
 
     @Unroll
-    def 'generate JWT with code [#code], tan [#tan], exposedDate [#exposedDateStr] and validUntil [#validUntilStr]'(boolean isFake, int fake, String code, String tan, String exposedDateStr, String validUntilStr) {
+    def 'generate JWT (#code, #tan, #exposedDateStr, #validUntilStr, #efgsSharing)'(boolean isFake, int fake, String code, String tan, String exposedDateStr, String validUntilStr, boolean efgsSharing) {
         given:
         def dateFormat = new SimpleDateFormat('yyyy-MM-dd')
         def exposedDate = dateFormat.parse(exposedDateStr)
         def validUntil  = dateFormat.parse(validUntilStr)
-        String jwt = jwtGenerator.generateJwt(isFake, code, tan, exposedDate, validUntil)
+        String jwt = jwtGenerator.generateJwt(isFake, code, tan, exposedDate, validUntil, efgsSharing)
 
         when:
         def decodedJWT = JWT.decode(jwt)
@@ -45,9 +45,9 @@ class JwtGeneratorTestSpec extends Specification {
         decodedJWT.getClaim('fake').asInt() == fake
 
         where:
-        isFake | code           | tan    | exposedDateStr | validUntilStr | fake
-        false  | '123456789012' | 'XXXX' | '2020-08-30'   | '2020-09-14'  | 0
-        true   | '900000000009' | 'YYYY' | '2020-08-30'   | '2020-09-14'  | 1
+        isFake | code           | tan    | exposedDateStr | validUntilStr | efgsSharing | fake
+        false  | '123456789012' | 'XXXX' | '2020-08-30'   | '2020-09-14'  | true        | 0
+        true   | '900000000009' | 'YYYY' | '2020-08-30'   | '2020-09-14'  | false       | 1
     }
 
 }

@@ -9,19 +9,6 @@
  */
 package es.gob.radarcovid.verification.business.impl;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.IntStream;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import es.gob.radarcovid.common.annotation.Loggable;
 import es.gob.radarcovid.common.exception.RadarCovidServerException;
 import es.gob.radarcovid.verification.api.CodeDto;
@@ -38,6 +25,18 @@ import es.gob.radarcovid.verification.util.GenerateRandom;
 import es.gob.radarcovid.verification.validation.impl.CodeValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +70,7 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Loggable
     @Override
-    public Optional<String> redeemCode(CodeDto codeDto) {
+    public Optional<String> redeemCode(CodeDto codeDto, boolean efgsSharing) {
         if (codeDto != null && !StringUtils.isEmpty(codeDto.getCode())) {
             String strTan = generateTan(codeDto.getCode());
             Instant validUntilTime = Instant.now().plus(tanValidUntilMinutes, ChronoUnit.MINUTES);
@@ -79,12 +78,12 @@ public class VerificationServiceImpl implements VerificationService {
             if (CodeValidator.FAKE_CODE.equals(codeDto.getCode())) {
                 log.debug("Redeem fake code " + CodeValidator.FAKE_CODE);
 				return Optional.of(jwtGenerator.generateJwt(true, CodeValidator.FAKE_CODE, strTan,
-						dateInfection.getDefaultInfectionDate(), validUntil));
+						dateInfection.getDefaultInfectionDate(), validUntil, false));
             } else if (CheckSumUtil.validateChecksum(codeDto.getCode())) {
                 log.debug("TAN:{}", strTan);
 				if (dao.redeemCode(codeDto.getCode(), strTan, validUntil)) {
 					return Optional.of(jwtGenerator.generateJwt(false, codeDto.getCode(), strTan,
-							dateInfection.getInfectionDate(codeDto.getDate()), validUntil));
+							dateInfection.getInfectionDate(codeDto.getDate()), validUntil, efgsSharing));
 				}
             }
         }

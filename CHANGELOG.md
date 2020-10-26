@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Setted responses retention time on fake requests.
 - AOP aspects ordering. 
+- [EU Federation Gateway Service (EFGS)](https://github.com/eu-federation-gateway-service/efgs-federation-gateway) integration using "_One World_" pattern. If EFGS sharing, service creates a new claim for it. 
 
 ### Changed
 
