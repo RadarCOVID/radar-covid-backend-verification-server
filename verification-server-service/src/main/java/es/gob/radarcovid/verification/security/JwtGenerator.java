@@ -13,6 +13,6 @@ import java.util.Date;
 
 public interface JwtGenerator {
 
-    String generateJwt(boolean isFake, String code, String tan, Date exposedDate, Date validUntil);
+    String generateJwt(boolean isFake, String code, String tan, Date exposedDate, Date validUntil, boolean efgsSharing);
 
 }
