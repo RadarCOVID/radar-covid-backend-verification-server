@@ -62,6 +62,9 @@ spring:
 
 cloud:
   aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_KEY:}
     region:
       auto: ${CLOUD.AWS.REGION.AUTO:false}
       static: ${CLOUD.AWS.REGION.STATIC:eu-west-1}

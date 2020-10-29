@@ -17,27 +17,6 @@
 
 	<profiles>
 		<profile>
-			<id>aws-metrics</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.springframework.cloud</groupId>
-					<artifactId>spring-cloud-starter-aws</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>org.springframework.cloud</groupId>
-					<artifactId>spring-cloud-aws-autoconfigure</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>org.springframework.cloud</groupId>
-					<artifactId>spring-cloud-aws-actuator</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>io.micrometer</groupId>
-					<artifactId>micrometer-registry-cloudwatch2</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
 			<id>devtools</id>
 			<dependencies>
 				<dependency>
@@ -64,11 +43,16 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>pre-env</id>
-			<properties>
-				<build.profile.id>pre</build.profile.id>
-			</properties>
+			<id>aws-env</id>
 			<dependencies>
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-aws</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-aws-actuator</artifactId>
+				</dependency>
 				<dependency>
 					<groupId>io.micrometer</groupId>
 					<artifactId>micrometer-registry-cloudwatch2</artifactId>
@@ -80,16 +64,16 @@
 			</dependencies>
 		</profile>
 		<profile>
+			<id>pre-env</id>
+			<properties>
+				<build.profile.id>pre</build.profile.id>
+			</properties>
+		</profile>
+		<profile>
 			<id>pro-env</id>
 			<properties>
 				<build.profile.id>pro</build.profile.id>
 			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>org.springframework.cloud</groupId>
-					<artifactId>spring-cloud-starter-aws-parameter-store-config</artifactId>
-				</dependency>
-			</dependencies>
 		</profile>
 	</profiles>
 

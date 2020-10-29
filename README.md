@@ -29,6 +29,8 @@ These are the frameworks and tools used to develop the solution:
     - [Spock Framework](http://spockframework.org/).
     - [Docker](https://www.docker.com/), because of using Testcontainers.
     - [Testcontainers](https://www.testcontainers.org/).
+- Monitoring:
+    - [Micrometer](https://micrometer.io/).
 
 ## Installation and Getting Started
 
@@ -53,6 +55,13 @@ Where `<environment>` has these possible values:
 - `docker-env`. To run the application in a Docker container with `docker-compose`, using [`application.yml`](./verification-server-boot/src/main/resources/application.yml) configuration file. If any properties need to be modified, you can create application-docker.yml configuration file.
 - `pre-env`. To run the application in the Preproduction environment. Preproduction environment properties are configured in the infrastructure.
 - `pro-env`. To run the application in the Production environment. Production environment properties are configured in the infrastructure.
+
+The project also uses Maven profile `aws-env` to include dependencies when it is running on AWS environment, so the compilation command for Preproduction and Production environments would be:
+
+```shell
+mvn clean package -P pre-env,aws-env
+mvn clean package -P pro-env,aws-env
+```
 
 All profiles will load the default [configuration file](./verification-server-boot/src/main/resources/application.yml).
 
