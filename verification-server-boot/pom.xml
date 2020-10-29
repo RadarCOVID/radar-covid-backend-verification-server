@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>es.gob.radarcovid</groupId>
 		<artifactId>verification-server-parent</artifactId>
-        <version>1.1.0.RELEASE</version>
+        <version>1.1.1-SNAPSHOT</version>
 		<relativePath>../</relativePath> <!-- lookup parent from repository -->
 	</parent>
 
