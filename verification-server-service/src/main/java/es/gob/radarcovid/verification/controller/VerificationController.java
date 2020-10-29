@@ -97,7 +97,7 @@ public class VerificationController {
             if (!CodeValidator.FAKE_CODE.equals(codeDto.getCode())) {
                 log.info("The Code {} is valid - JWT token {}", codeDto, response);
             } else {
-                log.info("Fake Code {} - JWT token {}", codeDto, response);
+                log.debug("Fake Code {} - JWT token {}", codeDto, response);
             }
             return () -> ResponseEntity.ok(response);
         } else {
