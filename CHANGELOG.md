@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. 
 
+## [Unreleased]
+
+### Added
+
+- Added timezone to the date in CodeDto.
+- Added CodeDto complete validation instead of attribute code in CodeDto class.
+
+### Changed
+
+- Changed Scheme documentation for attribute date in CodeDto. It is not required.
+
+### Fixed
+
 ## [1.1.0.RELEASE] - 2020-10-29
 
 ### Added
