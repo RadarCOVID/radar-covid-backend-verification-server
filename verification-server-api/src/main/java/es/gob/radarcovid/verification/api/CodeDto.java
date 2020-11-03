@@ -11,15 +11,12 @@ package es.gob.radarcovid.verification.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import es.gob.radarcovid.verification.validation.CodeConstraint;
+import es.gob.radarcovid.verification.validation.CodeDtoConstraint;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -27,17 +24,18 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@CodeDtoConstraint(message = "Invalid code for codeDto ${validatedValue}")
 public class CodeDto implements Serializable {
 
-    @Schema(description = "Date the patient indicates that he/she is infected", required = true, pattern = "dd/MM/yyyy")
-    @PastOrPresent
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    @Schema(description = "Date the patient indicates that he/she is infected", pattern = "dd/MM/yyyy")
+    //@PastOrPresent
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone = "UTC", locale = "es-ES")
     private Date date;
 
     @Schema(description = "12 digits validation code", required = true)
-    @NotNull
-    @Pattern(regexp = "^\\d{12}$")
-    @CodeConstraint(message = "Invalid checksum for code ${validatedValue}")
+    //@NotNull
+    //@Pattern(regexp = "^\\d{12}$")
+    //@CodeConstraint(message = "Invalid checksum for code ${validatedValue}")
     private String code;
 
 }
