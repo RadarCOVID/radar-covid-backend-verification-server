@@ -16,8 +16,6 @@ import java.util.List;
 
 public interface VerificationDao {
 
-    boolean isValidCode(String code);
-
     @Transactional
     boolean redeemCode(String code, String tan, Date validUntil);
 

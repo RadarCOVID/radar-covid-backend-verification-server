@@ -10,7 +10,6 @@
 package es.gob.radarcovid.verification.business;
 
 import es.gob.radarcovid.verification.api.CodeDto;
-import es.gob.radarcovid.verification.api.CodesResultDto;
 
 import java.util.Optional;
 
@@ -19,7 +18,5 @@ public interface VerificationService {
     Optional<String> redeemCode(CodeDto codeDto, boolean efgsSharing);
 
     boolean redeemTan(String tan);
-
-    CodesResultDto getCodes(boolean radarCovid, String ccaa, Integer number);
 
 }

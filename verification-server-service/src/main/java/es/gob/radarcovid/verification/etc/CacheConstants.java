@@ -13,6 +13,7 @@ public class CacheConstants {
 
     public static final String CACHE_CCAA_LIST = "ccaa_list";
     public static final String CACHE_CCAA_ID = "ccaa_id";
+    public static final String CACHE_TAN_HASH = "tan_hash";
 
     private CacheConstants() {}
 

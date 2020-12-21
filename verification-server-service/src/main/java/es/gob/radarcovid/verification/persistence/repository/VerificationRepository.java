@@ -26,12 +26,4 @@ public interface VerificationRepository extends JpaRepository<VerificationEntity
      */
     Optional<VerificationEntity> findByCodeHashAndCodeRedeemedIsFalse(String codeHash);
 
-    /**
-     * This method looks in the Database for an if a VerificationEntity exists for the tan hash.
-     *
-     * @param tanHash hash to search for
-     * @return Optional VerificationEntity
-     */
-    Optional<VerificationEntity> findByTanHashAndTanRedeemedIsFalse(String tanHash);
-
 }

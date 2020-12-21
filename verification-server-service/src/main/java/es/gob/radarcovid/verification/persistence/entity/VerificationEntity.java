@@ -10,7 +10,6 @@
 package es.gob.radarcovid.verification.persistence.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +21,19 @@ import java.time.ZoneOffset;
 import java.util.Date;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "TAN")
+@Table(name = "CODE")
 @Slf4j
 public class VerificationEntity implements Serializable {
 
-    private static final String SEQUENCE_NAME = "SQ_NM_ID_TAN";
+    private static final String SEQUENCE_NAME = "SQ_NM_ID_CODE";
 
     @Id
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
-    @Column(name = "NM_ID_TAN")
+    @Column(name = "NM_ID_CODE")
     private Long id;
 
     @Version
@@ -70,24 +68,6 @@ public class VerificationEntity implements Serializable {
     @Column(name = "FC_CODE_REDEEMED_DATE")
     private Date codeRedeemedAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "FC_TAN_VALID_FROM")
-    private Date tanValidFrom;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "FC_TAN_VALID_UNTIL")
-    private Date tanValidUntil;
-
-    @Column(name = "DE_TAN_HASH")
-    private String tanHash;
-
-    @Column(name = "IN_TAN_REDEEMED")
-    private boolean tanRedeemed;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "FC_TAN_REDEEMED_DATE")
-    private Date tanRedeemedAt;
-
     /**
      * Check if the code can be redeemed by date.
      *
@@ -106,21 +86,6 @@ public class VerificationEntity implements Serializable {
 
     public boolean codeCanBeRedeemed(LocalDateTime reference) {
         return codeCanBeRedeemed(Date.from(reference.atZone(ZoneOffset.UTC).toInstant()));
-    }
-
-    public boolean tanCanBeRedeemed(Date reference) {
-        boolean result = tanValidFrom.before(reference)
-                && tanValidUntil.after(reference)
-                && !isCodeRedeemed()
-                && !isTanRedeemed();
-        if (!result) {
-            log.warn("Tan can't be redeemed due to date or it was redeemed ({}, {})", reference, isCodeRedeemed(), isTanRedeemed());
-        }
-        return result;
-    }
-
-    public boolean tanCanBeRedeemed(LocalDateTime reference) {
-        return tanCanBeRedeemed(Date.from(reference.atZone(ZoneOffset.UTC).toInstant()));
     }
 
 }

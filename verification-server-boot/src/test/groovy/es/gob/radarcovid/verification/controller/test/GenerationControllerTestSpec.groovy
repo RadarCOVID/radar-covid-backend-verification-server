@@ -13,7 +13,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import es.gob.radarcovid.common.security.KeyVault
 import es.gob.radarcovid.verification.api.CodesResultDto
-import es.gob.radarcovid.verification.security.JwtAuthorizationFilter
+import es.gob.radarcovid.verification.etc.Constants
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,13 +52,13 @@ class GenerationControllerTestSpec extends Specification {
     TestRestTemplate testRestTemplate;
 
     @Unroll
-    def 'ask for verification codes with subject [#subject], numCodes [#numCodes] and statusCode [#statusCode]'(String subject, int numCodes, int statusCode) {
+    def 'ask for verification codes (#subject, #numCodes) = #statusCode'(String subject, int numCodes, int statusCode) {
         given:
         HttpHeaders httpHeaders = new HttpHeaders()
 
         httpHeaders.setContentType(MediaType.APPLICATION_JSON)
         httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON))
-        httpHeaders.set(JwtAuthorizationFilter.AUTHORIZATION_HEADER, JwtAuthorizationFilter.AUTHORIZATION_PREFIX + generateToken(subject))
+        httpHeaders.set(Constants.AUTHORIZATION_HEADER, Constants.AUTHORIZATION_PREFIX + generateToken(subject))
 
         HttpEntity<?> request = new HttpEntity<>(httpHeaders)
 
@@ -72,17 +72,18 @@ class GenerationControllerTestSpec extends Specification {
         where:
         subject | numCodes | statusCode
         '01'    | 5        | 200         // CCAA 01 is loaded in database
-        '02'    | 1        | 403         // CCAA 02 is not loaded in database
+        '02'    | 1        | 403         // CCAA 02 is loaded in database but has no GENERATION role access
+        '03'    | 1        | 403         // CCAA 03 is not loaded in database
     }
 
     @Unroll
-    def 'ask for verification codes with subject [#subject], numCodes [#numCodes] and statusCode [#statusCode] and alg none'(String subject, int numCodes, int statusCode) {
+    def 'ask for verification codes (#subject, #numCodes) with alg none = #statusCode'(String subject, int numCodes, int statusCode) {
         given:
         HttpHeaders httpHeaders = new HttpHeaders()
 
         httpHeaders.setContentType(MediaType.APPLICATION_JSON)
         httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON))
-        httpHeaders.set(JwtAuthorizationFilter.AUTHORIZATION_HEADER, JwtAuthorizationFilter.AUTHORIZATION_PREFIX + generateAlgNoneToken(subject))
+        httpHeaders.set(Constants.AUTHORIZATION_HEADER, Constants.AUTHORIZATION_PREFIX + generateAlgNoneToken(subject))
 
         HttpEntity<?> request = new HttpEntity<>(httpHeaders)
 
@@ -117,11 +118,6 @@ class GenerationControllerTestSpec extends Specification {
     }
 
     def generateAlgNoneToken(String subject) throws Exception {
-        String strPrivateKey = KeyVault.loadKey(PRIVATE_KEY_FILE)
-        ECPrivateKey privateKey = (ECPrivateKey) KeyVault.loadPrivateKeyFromPem(strPrivateKey, ALGORITHM_EC)
-
-        Algorithm algorithm = Algorithm.ECDSA512(null, privateKey)
-
         Instant issuedAt = Instant.now().truncatedTo(ChronoUnit.SECONDS)
         Instant expiresAt = issuedAt.plus(TOKEN_MINS_EXPIRES, ChronoUnit.MINUTES)
 

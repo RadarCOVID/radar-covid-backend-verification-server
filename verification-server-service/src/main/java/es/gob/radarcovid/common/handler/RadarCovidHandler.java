@@ -33,7 +33,7 @@ import java.security.spec.InvalidKeySpecException;
 
 @RestControllerAdvice
 @Slf4j
-public class RadarCovidExceptionHandler {
+public class RadarCovidHandler {
 
     /**
      * This method handles Bad Requests.
@@ -131,8 +131,8 @@ public class RadarCovidExceptionHandler {
     }
 
     public static ResponseEntity<MessageResponseDto> buildResponseMessage(HttpStatus httpStatus, String message) {
-        MessageResponseDto errorResponse = MessageResponseDto.builder().code(httpStatus.value()).message(message).build();
-        return ResponseEntity.status(httpStatus).body(errorResponse);
+        MessageResponseDto messageResponse = MessageResponseDto.builder().code(httpStatus.value()).message(message).build();
+        return ResponseEntity.status(httpStatus).body(messageResponse);
     }
 
 }

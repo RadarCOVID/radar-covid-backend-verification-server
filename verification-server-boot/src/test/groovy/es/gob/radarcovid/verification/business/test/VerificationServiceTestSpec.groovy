@@ -11,7 +11,9 @@ package es.gob.radarcovid.verification.business.test
 
 import com.auth0.jwt.JWT
 import es.gob.radarcovid.verification.api.CodeDto
+import es.gob.radarcovid.verification.business.GenerationService
 import es.gob.radarcovid.verification.business.VerificationService
+import es.gob.radarcovid.verification.persistence.repository.TanRepository
 import es.gob.radarcovid.verification.persistence.repository.VerificationRepository
 import es.gob.radarcovid.verification.util.HashingService
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +27,9 @@ import spock.lang.Unroll
 class VerificationServiceTestSpec extends Specification {
 
     @Autowired
+    GenerationService generationService
+
+    @Autowired
     VerificationService service
 
     @Autowired
@@ -32,32 +37,14 @@ class VerificationServiceTestSpec extends Specification {
 
     @Autowired
     VerificationRepository repository
-
-    @Unroll
-    def 'get codes with radarCovid [#radarCovid], ccaa [#ccaa] and number [#number]'(boolean radarCovid, String ccaa, int number) {
-        when:
-        def codes = service.getCodes(radarCovid, ccaa, number)
-        def hash = hashingService.hash(codes.codes.first())
-        def entity = repository.findByCodeHashAndCodeRedeemedIsFalse(hash)
-
-        then:
-        codes.codes.size() == number
-        entity.get().ccaa == ccaa
-        entity.get().codeHash == hash
-        entity.get().ccaaCreation
-        !entity.get().codeRedeemed
-        !entity.get().tanRedeemed
-        entity.get().tanHash == null
-
-        where:
-        radarCovid | ccaa | number
-        false      | '01' | 1
-    }
+	
+	@Autowired
+	TanRepository tanRepository
 
     @Unroll
     def 'redeem code with radarCovid [#radarCovid], ccaa [#ccaa] and number [#number]'(boolean radarCovid, String ccaa, int number, boolean efgsSharing) {
         given:
-        def codes = service.getCodes(radarCovid, ccaa, number)
+        def codes = generationService.getCodes(radarCovid, ccaa, number)
         def codeDto = new CodeDto()
         codeDto.code = codes.codes.first()
 
@@ -68,7 +55,7 @@ class VerificationServiceTestSpec extends Specification {
         def entityCode = repository.findByCodeHashAndCodeRedeemedIsFalse(codeHash)
         def tan = decodedJWT.getClaim('tan').asString()
         def tanHash = hashingService.hash(tan)
-        def entityTan = repository.findByTanHashAndTanRedeemedIsFalse(tanHash)
+		def entityTan = tanRepository.findByTanHash(tanHash)
 
         then:
         decodedJWT.subject == codes.codes.first()
@@ -79,9 +66,8 @@ class VerificationServiceTestSpec extends Specification {
         entityCode.get().codeHash == codeHash
         entityCode.get().ccaaCreation
         !entityCode.get().codeRedeemed
-        !entityCode.get().tanRedeemed
-        entityCode.get().tanHash == tanHash
-        entityCode.get().id == entityTan.get().id
+        entityTan.get().tanHash == tanHash
+        entityCode.get().codeHash == entityTan.get().codeHash
 
         where:
         radarCovid | ccaa | number | efgsSharing
@@ -91,7 +77,7 @@ class VerificationServiceTestSpec extends Specification {
     @Unroll
     def 'redeem TAN with radarCovid [#radarCovid], ccaa [#ccaa] and number [#number]'(boolean radarCovid, String ccaa, int number) {
         given:
-        def codes = service.getCodes(radarCovid, ccaa, number)
+        def codes = generationService.getCodes(radarCovid, ccaa, number)
         def codeDto = new CodeDto()
         codeDto.code = codes.codes.first()
 
@@ -106,7 +92,7 @@ class VerificationServiceTestSpec extends Specification {
         def tanHash = hashingService.hash(tan)
 
         def redeemed = service.redeemTan(tan)
-        def entityTan = repository.findById(entityCode.get().id)
+        def entityTan = tanRepository.findByTanHash(tanHash)
 
         then:
         decodedJWT.subject == codes.codes.first()
@@ -116,12 +102,8 @@ class VerificationServiceTestSpec extends Specification {
         entityCode.get().codeHash == codeHash
         entityCode.get().ccaaCreation
         !entityCode.get().codeRedeemed
-        !entityCode.get().tanRedeemed
-        entityCode.get().tanHash == tanHash
         redeemed
-        entityTan.get().codeRedeemed
-        entityTan.get().tanRedeemed
-        entityTan.get().tanHash == tanHash
+        entityTan.empty
 
         where:
         radarCovid | ccaa | number
