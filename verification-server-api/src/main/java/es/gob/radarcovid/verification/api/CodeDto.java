@@ -28,7 +28,6 @@ import java.util.Date;
 public class CodeDto implements Serializable {
 
     @Schema(description = "Date the patient indicates that he/she is infected", pattern = "dd/MM/yyyy")
-    //@PastOrPresent
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone = "UTC", locale = "es-ES")
     private Date date;
 
