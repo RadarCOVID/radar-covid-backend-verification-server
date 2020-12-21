@@ -9,9 +9,8 @@
  */
 package es.gob.radarcovid.verification.config;
 
-import es.gob.radarcovid.verification.controller.GenerationController;
 import es.gob.radarcovid.verification.etc.ApplicationOpenApiProperties;
-import es.gob.radarcovid.verification.security.JwtAuthorizationFilter;
+import es.gob.radarcovid.verification.etc.Constants;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -34,13 +33,13 @@ public class OpenApiConfiguration {
                               .description(properties.getDescription())
                               .termsOfService(properties.getTermsOfService()))
                 .components(new Components()
-                                    .addSecuritySchemes(GenerationController.API_KEY_AUTH,
+                                    .addSecuritySchemes(Constants.API_KEY_AUTH,
                                                         new SecurityScheme()
                                                                 .type(SecurityScheme.Type.APIKEY)
                                                                 .scheme("bearer")
                                                                 .bearerFormat("JWT")
                                                                 .in(SecurityScheme.In.HEADER)
-                                                                .name(JwtAuthorizationFilter.AUTHORIZATION_HEADER)))
+                                                                .name(Constants.AUTHORIZATION_HEADER)))
                 .addServersItem(new Server().url(properties.getServer()));
     }
 
