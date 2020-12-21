@@ -53,6 +53,16 @@ spring:
         # batch
         jdbc.batch_size: ${HIBERNATE_BATCH_SIZE:10}
         order_inserts: ${HIBERNATE_ORDER_INSERTS:true}
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PSW:}
+    timeout: ${REDIS_CONNECTION_TIMEOUT:20000}
+    lettuce:
+      cluster:
+        refresh:
+          period: ${REDIS_REFRESH_PERIOD:PT30M}
+          adaptive: ${REDIS_REFRESH_ADAPTIVE:true}
   sleuth:
     log.slf4j.enabled: true
   security:
@@ -82,10 +92,8 @@ springdoc:
 application:
   retention-days: ${RETENTION_DAYS:14}
   cache:
-    enabled: ${CACHE_ENABLED:true}
-    max-size: ${CACHE_MAX_SIZE:200}
-    time-to-live: ${CACHE_TIME_TO_LIVE:5} # minutes
-    max-idle: ${CACHE_MAX_IDLE:20} # seconds
+    prefix-name: ${CACHE_PREFIX_NAME:verification}
+    time-to-live: ${CACHE_TIME_TO_LIVE:30} # minutes
   response:
     retention:
       enabled: ${RESPONSE_RETENTION_ENABLED:false}

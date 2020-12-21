@@ -10,18 +10,16 @@
 package es.gob.radarcovid.verification.persistence;
 
 import es.gob.radarcovid.verification.domain.CCAADto;
-import es.gob.radarcovid.verification.etc.CacheConstants;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CCAADao {
 
-    @Cacheable(CacheConstants.CACHE_CCAA_LIST)
+//    @Cacheable(CacheConstants.CACHE_CCAA_LIST)
     List<CCAADto> getList();
 
-    @Cacheable(CacheConstants.CACHE_CCAA_ID)
+//    @Cacheable(CacheConstants.CACHE_CCAA_ID)
     Optional<CCAADto> findById(String id);
 
 }

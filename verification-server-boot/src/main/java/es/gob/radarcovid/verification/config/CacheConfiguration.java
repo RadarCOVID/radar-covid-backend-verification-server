@@ -9,16 +9,11 @@
  */
 package es.gob.radarcovid.verification.config;
 
-import com.hazelcast.config.*;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.spring.cache.HazelcastCacheManager;
 import es.gob.radarcovid.verification.etc.CacheConstants;
 import es.gob.radarcovid.verification.handler.CustomizedCacheErrorHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -30,81 +25,76 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Configuration
-@ConditionalOnProperty(name = "application.cache.enabled", havingValue = "true")
 @EnableCaching
 @Slf4j
 public class CacheConfiguration extends CachingConfigurerSupport implements CachingConfigurer {
+	
+	private static final String SEPARATOR = "::";
 
-    @Override
-    public CacheErrorHandler errorHandler() {
-        return new CustomizedCacheErrorHandler();
-    }
+	@Value("${application.cache.time-to-live:30}")
+	private int cacheTimeToLiveMinutes;
+	
+	@Value("${application.cache.prefix-name:verification}")
+	private String cachePrefixName;
 
-    @Value("${application.cache.max-size:200}")
-    private int cacheMaxSize;
+	@Override
+	public CacheErrorHandler errorHandler() {
+		return new CustomizedCacheErrorHandler();
+	}
 
-    @Value("${application.cache.time-to-live:5}")
-    private int cacheTimeToLiveMinutes;
+	@Bean
+	@DependsOn(value = { "noOpCacheManager", "redisCacheManager" })
+	@Primary
+	public CacheManager cacheManager(@Qualifier("noOpCacheManager") CacheManager noOpCacheManager,
+			                         @Qualifier("redisCacheManager") CacheManager redisCacheManager) {
+		CompositeCacheManager compositeCacheManager = new CompositeCacheManager();
+		compositeCacheManager.setFallbackToNoOpCache(true);
+		List<CacheManager> cacheManagerList = new ArrayList<>();
+		cacheManagerList.add(redisCacheManager);
+		cacheManagerList.add(noOpCacheManager);
+		compositeCacheManager.setCacheManagers(cacheManagerList);
+		return compositeCacheManager;
+	}
 
-    @Value("${application.cache.max-idle:20}")
-    private int cacheMaxIdleSeconds;
+	@Bean("noOpCacheManager")
+	public CacheManager noOpCacheManager() {
+		return new NoOpCacheManager();
+	}
 
-    @Bean
-    @DependsOn("noOpCacheManager")
-    @Primary
-    public CacheManager kpiCacheManager(@Qualifier("noOpCacheManager") CacheManager noOpCacheManager) {
-        CompositeCacheManager compositeCacheManager = new CompositeCacheManager();
-        compositeCacheManager.setFallbackToNoOpCache(true);
-        List<CacheManager> cacheManagerList = new ArrayList<>();
-        cacheManagerList.add(remoteCacheManager(noOpCacheManager));
-        cacheManagerList.add(noOpCacheManager);
-        compositeCacheManager.setCacheManagers(cacheManagerList);
-        return compositeCacheManager;
-    }
+	@Bean("redisCacheManager")
+	public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+		Set<String> cacheNames = Stream.of(
+				CacheConstants.CACHE_TAN_HASH
+			).collect(Collectors.toSet());
+		CacheManager cacheManager = RedisCacheManager.builder(redisConnectionFactory)
+				.cacheDefaults(redisCacheConfiguration())
+				.initialCacheNames(cacheNames)
+				.build();
+		log.debug("Redis cache enabled");
+		return cacheManager;
+	}
 
-    @Bean("noOpCacheManager")
-    public CacheManager noOpCacheManager() {
-        return new NoOpCacheManager();
-    }
-
-    private HazelcastInstance hazelcastInstanceLocal() {
-        Config config = new Config().setInstanceName("hazelcast-instance");
-        config.addMapConfig(mapConfig(CacheConstants.CACHE_CCAA_ID));
-        config.addMapConfig(mapConfig(CacheConstants.CACHE_CCAA_LIST));
-        NetworkConfig networkConfig = config.getNetworkConfig();
-        networkConfig.setPort(5701).setPortCount(20);
-        networkConfig.setPortAutoIncrement(true);
-        JoinConfig joinConfig = networkConfig.getJoin();
-        joinConfig.getMulticastConfig().setEnabled(false);
-        joinConfig.getTcpIpConfig().addMember("localhost").setEnabled(true);
-        return Hazelcast.newHazelcastInstance(config);
-    }
-
-    private CacheManager remoteCacheManager(CacheManager noOpCacheManager) {
-        CacheManager cacheManager;
-        try {
-            HazelcastInstance hazelcastInstance = hazelcastInstanceLocal();
-            log.debug("Hazelcast Instance Local");
-            cacheManager = new HazelcastCacheManager(hazelcastInstance);
-        } catch (Exception ex) {
-            cacheManager = noOpCacheManager;
-            log.debug("Hazelcast disabled");
-        }
-
-        return cacheManager;
-    }
-
-    private MapConfig mapConfig(String cacheName) {
-        MapConfig mapConfig = new MapConfig(cacheName);
-        mapConfig.setMaxSizeConfig(new MaxSizeConfig(cacheMaxSize, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE));
-        mapConfig.setTimeToLiveSeconds(cacheTimeToLiveMinutes * 60);
-        mapConfig.setMaxIdleSeconds(cacheMaxIdleSeconds);
-        return mapConfig;
-    }
+	private RedisCacheConfiguration redisCacheConfiguration() {
+		RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+				.disableCachingNullValues()
+				.entryTtl(Duration.ofMinutes(cacheTimeToLiveMinutes))
+				.prefixCacheNameWith(cachePrefixName + SEPARATOR)
+				.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json()));
+		return redisCacheConfiguration;
+	}
 
 }
