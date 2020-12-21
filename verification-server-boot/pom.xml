@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>es.gob.radarcovid</groupId>
 		<artifactId>verification-server-parent</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.2.0.RELEASE</version>
 		<relativePath>../</relativePath> <!-- lookup parent from repository -->
 	</parent>
 
@@ -166,16 +166,6 @@
 			<artifactId>postgresql</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- Hazelcast -->
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast-spring</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast-client</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -186,6 +176,10 @@
 				<configuration>
 					<outputDirectory>${project.build.directory}/docker</outputDirectory>
 					<classifier>exec</classifier>
+					<layers>
+						<enabled>true</enabled>
+						<configuration>${project.basedir}/src/main/docker/layers.xml</configuration>
+	        		</layers>
 				</configuration>
 				<executions>
 					<execution>
@@ -215,6 +209,9 @@
 								<resource>
 									<directory>${project.basedir}/src/main/docker</directory>
 									<filtering>true</filtering>
+									<excludes>
+										<exclude>**/layers.xml</exclude>
+									</excludes>
 								</resource>
 							</resources>
 							<delimiters>
