@@ -12,8 +12,10 @@ package es.gob.radarcovid.verification.config;
 import es.gob.radarcovid.common.config.JwtAuthenticationEntryPoint;
 import es.gob.radarcovid.common.security.KeyVault;
 import es.gob.radarcovid.verification.controller.GenerationController;
+import es.gob.radarcovid.verification.controller.KpiController;
 import es.gob.radarcovid.verification.controller.VerificationController;
 import es.gob.radarcovid.verification.etc.RadarCovidProperties;
+import es.gob.radarcovid.verification.persistence.CCAAAuthorizationDao;
 import es.gob.radarcovid.verification.persistence.CCAADao;
 import es.gob.radarcovid.verification.security.JwtAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -33,7 +36,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final KeyVault keyVault;
-    private final CCAADao dao;
+    private final CCAADao ccaaDao;
+    private final CCAAAuthorizationDao authorizationDao;
     private final RadarCovidProperties properties;
 
     @Autowired
@@ -47,15 +51,22 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-            .headers().and()
-                .addFilterAfter(new JwtAuthorizationFilter(keyVault, dao, resolver, properties), UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                .and()
+            .headers()
+                .and()
+            .addFilterAfter(new JwtAuthorizationFilter(keyVault, ccaaDao, authorizationDao, resolver, properties),
+                                                       UsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
                 .antMatchers(HttpMethod.POST, VerificationController.VERIFY_ROUTE + "**").permitAll()
+                .antMatchers(HttpMethod.POST, KpiController.KPI_ROUTE + "**").authenticated()
                 .antMatchers(HttpMethod.GET, GenerationController.GENERATE_ROUTE + "**").authenticated()
                 .anyRequest().permitAll()
-            .and()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-            .and().csrf().disable()
+                .and()
+            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                .and()
+            .csrf().disable()
             .cors();
         // @formatter.on
     }

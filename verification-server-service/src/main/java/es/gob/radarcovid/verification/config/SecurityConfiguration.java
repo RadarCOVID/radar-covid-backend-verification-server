@@ -12,13 +12,15 @@ package es.gob.radarcovid.verification.config;
 import es.gob.radarcovid.common.exception.RadarCovidServerException;
 import es.gob.radarcovid.common.security.KeyVault;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.StringUtils;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 @Configuration
+@EnableGlobalMethodSecurity(securedEnabled = true)
 @Slf4j
 public class SecurityConfiguration {
 
@@ -47,9 +49,8 @@ public class SecurityConfiguration {
         var publicKey = KeyVault.getBase64Key(credentialsPublicKey);
 
         var radar = new KeyVault.KeyVaultEntry(PAIR_KEY_RADAR, privateKey, publicKey, PAIR_KEY_ALGORITHM);
-
         try {
-            if (dummyEnabled && !StringUtils.isEmpty(dummyCredentialsPrivateKey) && !StringUtils.isEmpty(dummyCredentialsPublicKey)) {
+            if (dummyEnabled && StringUtils.isNotEmpty(dummyCredentialsPrivateKey) && StringUtils.isNotEmpty(dummyCredentialsPublicKey)) {
                 var dummyPrivateKey = KeyVault.getBase64Key(dummyCredentialsPrivateKey);
                 var dummyPublicKey = KeyVault.getBase64Key(dummyCredentialsPublicKey);
 

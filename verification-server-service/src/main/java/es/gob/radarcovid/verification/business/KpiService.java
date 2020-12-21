@@ -9,14 +9,10 @@
  */
 package es.gob.radarcovid.verification.business;
 
-import es.gob.radarcovid.verification.api.CodeDto;
+import es.gob.radarcovid.verification.api.KpiDto;
 
-import java.util.Optional;
+import java.util.List;
 
-public interface VerificationService {
-
-    Optional<String> redeemCode(CodeDto codeDto, boolean efgsSharing);
-
-    boolean redeemTan(String tan);
-
+public interface KpiService {
+    void saveKpi(boolean radarCovid, String ccaa, List<KpiDto> kpiDtoList);
 }

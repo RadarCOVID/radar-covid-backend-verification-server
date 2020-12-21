@@ -9,21 +9,15 @@
  */
 package es.gob.radarcovid.verification.persistence.repository;
 
-import es.gob.radarcovid.verification.persistence.entity.VerificationEntity;
+import es.gob.radarcovid.verification.persistence.entity.CCAAAuthorizationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
-public interface VerificationRepository extends JpaRepository<VerificationEntity, Long> {
+public interface CCAAAuthorizationRepository extends JpaRepository <CCAAAuthorizationEntity, Long> {
 
-    /**
-     * This method looks in the Database for an if a VerificationEntity exists for the tan hash.
-     *
-     * @param codeHash hash to search for
-     * @return Optional VerificationEntity
-     */
-    Optional<VerificationEntity> findByCodeHashAndCodeRedeemedIsFalse(String codeHash);
+    Stream<CCAAAuthorizationEntity> findByCcaa(String ccaa);
 
 }

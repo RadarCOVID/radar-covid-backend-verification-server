@@ -9,20 +9,14 @@
  */
 package es.gob.radarcovid.verification.persistence;
 
+import es.gob.radarcovid.verification.api.KpiDto;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
-public interface VerificationDao {
+public interface CCAAKpiDao {
 
     @Transactional
-    boolean redeemCode(String code, String tan, Date validUntil);
-
-    @Transactional
-    boolean redeemTan(String tan);
-
-    @Transactional
-    boolean saveCodes(boolean radarCovid, String ccaa, List<String> codes, Date validUntil);
+    void saveKpi(boolean radarCovid, String ccaa, List<KpiDto> kpiDtoList);
 
 }

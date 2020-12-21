@@ -20,13 +20,14 @@ import es.gob.radarcovid.verification.controller.GenerationController;
 import es.gob.radarcovid.verification.domain.CCAADto;
 import es.gob.radarcovid.verification.etc.Constants;
 import es.gob.radarcovid.verification.etc.RadarCovidProperties;
+import es.gob.radarcovid.verification.persistence.CCAAAuthorizationDao;
 import es.gob.radarcovid.verification.persistence.CCAADao;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -39,32 +40,25 @@ import java.nio.file.AccessDeniedException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.interfaces.ECPublicKey;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    public static final String AUTHORIZATION_HEADER = "X-RadarCovid-Authorization";
-    public static final String AUTHORIZATION_PREFIX = "Bearer ";
-
-    public static final String RADAR_PREFIX = "radar-";
-    public static final String CCAA_PREFIX = "ccaa-";
-
-    private static final List<String> AUTHORITIES = Arrays.asList("CCAA");
-
     private final KeyVault keyVault;
-    private final CCAADao dao;
+    private final CCAADao ccaaDao;
+    private final CCAAAuthorizationDao authorizationDao;
     private final HandlerExceptionResolver resolver;
     private final RadarCovidProperties properties;
 
-    public JwtAuthorizationFilter(KeyVault keyVault, CCAADao dao, HandlerExceptionResolver resolver,
+    public JwtAuthorizationFilter(KeyVault keyVault,
+                                  CCAADao dao, CCAAAuthorizationDao authorizationDao,
+                                  HandlerExceptionResolver resolver,
                                   RadarCovidProperties properties) {
         this.keyVault = keyVault;
-        this.dao = dao;
+        this.ccaaDao = dao;
+        this.authorizationDao = authorizationDao;
         this.resolver = resolver;
         this.properties = properties;
     }
@@ -90,23 +84,24 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
             chain.doFilter(request, response);
 
-        } catch (AccessDeniedException | JWTVerificationException | KeyVault.PublicKeyNoSuitableEncodingFoundException e) {
+       } catch (AccessDeniedException | JWTVerificationException | KeyVault.PublicKeyNoSuitableEncodingFoundException e) {
             log.error("Excepción leyendo token JWT: {}", e.getMessage());
             resolver.resolveException(request, response, null, e);
         }
     }
 
     private boolean existsTokenJWT(HttpServletRequest request) {
-        String authenticationHeader = request.getHeader(AUTHORIZATION_HEADER);
-        return (!StringUtils.isEmpty(authenticationHeader) && authenticationHeader.startsWith(AUTHORIZATION_PREFIX));
+        String authenticationHeader = request.getHeader(Constants.AUTHORIZATION_HEADER);
+        return (!StringUtils.isEmpty(authenticationHeader) && authenticationHeader.startsWith(
+                Constants.AUTHORIZATION_PREFIX));
     }
 
     private Optional<String> validateToken(
             HttpServletRequest request) throws JWTVerificationException, KeyVault.PublicKeyNoSuitableEncodingFoundException {
-        String jwtToken = request.getHeader(AUTHORIZATION_HEADER);
+        String jwtToken = request.getHeader(Constants.AUTHORIZATION_HEADER);
         DecodedJWT decodedJWT = null;
-        if (!StringUtils.isEmpty(AUTHORIZATION_PREFIX)) {
-            jwtToken = jwtToken.replace(AUTHORIZATION_PREFIX, "");
+        if (!StringUtils.isEmpty(Constants.AUTHORIZATION_PREFIX)) {
+            jwtToken = jwtToken.replace(Constants.AUTHORIZATION_PREFIX, "");
         }
         try {
             decodedJWT = JWT.decode(jwtToken);
@@ -117,14 +112,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (checkTokenExpiration(decodedJWT.getIssuedAt(), decodedJWT.getExpiresAt())) {
             String idCCAA = decodedJWT.getSubject();
             MDC.put(Constants.TRACKING, "SUBJECT:" + idCCAA);
-            Optional<CCAADto> optionalCCAADto = dao.findById(idCCAA);
+            Optional<CCAADto> optionalCCAADto = ccaaDao.findById(idCCAA);
             if (optionalCCAADto.isPresent() && !StringUtils.isEmpty(optionalCCAADto.get().getPublicKey())) {
-                String ccaaName = CCAA_PREFIX + idCCAA;
+                String ccaaName = Constants.CCAA_PREFIX + idCCAA;
                 KeyPair keyPairCCAA = keyVault.get(ccaaName);
                 if (keyPairCCAA == null) {
                     String strPublicKey = KeyVault.getBase64Key(optionalCCAADto.get().getPublicKey());
                     PublicKey publicKey = KeyVault.loadPublicKey(strPublicKey,
-                            SecurityConfiguration.PAIR_KEY_ALGORITHM);
+                                                                 SecurityConfiguration.PAIR_KEY_ALGORITHM);
                     keyPairCCAA = new KeyPair(publicKey, null);
                     KeyVault.KeyVaultKeyPair keyVaultKeyPair = new KeyVault.KeyVaultKeyPair(ccaaName, keyPairCCAA);
                     keyVault.add(keyVaultKeyPair);
@@ -132,9 +127,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 if (properties.getSubject().equals(idCCAA)) {
                     if (decodedJWT.getIssuer().length() == 8 && decodedJWT.getIssuer().startsWith(
-                            RADAR_PREFIX)) {
+                            Constants.RADAR_PREFIX)) {
                         idCCAA = decodedJWT.getIssuer().substring(6, 8);
-                        ccaaName = RADAR_PREFIX + idCCAA;
+                        ccaaName = Constants.RADAR_PREFIX + idCCAA;
                     } else {
                         throw new JWTVerificationException("Subject no es de RadarCOVID " + idCCAA);
                     }
@@ -151,16 +146,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
         } else {
             log.warn("Token de comunidad {} generado con mayor duración (ya expirado): {}", decodedJWT.getSubject(),
-                    decodedJWT.getExpiresAt());
+                     decodedJWT.getExpiresAt());
         }
         return Optional.empty();
     }
 
     private void setUpSpringAuthentication(String ccaa) {
+        final List<String> authorizationList = new ArrayList<>(List.of(Constants.AUTH_CCAA));
+        if (CCAAAuthorizationUtil.isRadarCovid(ccaa)) {
+            authorizationList.add(Constants.AUTH_RADARCOVID);
+        } else {
+            authorizationDao.getAuthorization(CCAAAuthorizationUtil.getCCAAFromName(ccaa))
+                    .forEach(auth -> {
+                        log.debug("auth = {}", auth.getCode());
+                        authorizationList.add(auth.getCode());
+                    });
+        }
+        log.debug("CCAA:{}|AUTHORITIES:{}", ccaa, authorizationList);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(ccaa, null,
-                AUTHORITIES.stream().map(
-                        SimpleGrantedAuthority::new).collect(
-                        Collectors.toList()));
+                                                                                                          authorizationList.stream().map(
+                                                                                                                  SimpleGrantedAuthority::new).collect(
+                                                                                                                  Collectors.toList()));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 

@@ -11,14 +11,13 @@ package es.gob.radarcovid.verification.controller;
 
 import es.gob.radarcovid.common.annotation.Loggable;
 import es.gob.radarcovid.common.annotation.ResponseRetention;
-import es.gob.radarcovid.common.handler.RadarCovidExceptionHandler;
+import es.gob.radarcovid.common.handler.RadarCovidHandler;
 import es.gob.radarcovid.verification.api.CodeDto;
 import es.gob.radarcovid.verification.api.MessageResponseDto;
 import es.gob.radarcovid.verification.api.TanDto;
 import es.gob.radarcovid.verification.api.TokenResponseDto;
 import es.gob.radarcovid.verification.business.VerificationService;
 import es.gob.radarcovid.verification.etc.Constants;
-import es.gob.radarcovid.verification.etc.OpenApiConstants;
 import es.gob.radarcovid.verification.validation.impl.CodeValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -71,8 +70,7 @@ public class VerificationController {
     @ResponseRetention(time = "application.response.retention.time.verify.code")
     @Operation(
             summary = "Verify provided Code",
-            description = "The provided Code is verified to be formerly issued by the Health Authority",
-            hidden = OpenApiConstants.VERIFICATION_VERIFY_CODE_OPERATION_HIDDEN
+            description = "The provided Code is verified to be formerly issued by the Health Authority"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Code is valid and formerly issued by the Health Authority",
@@ -102,7 +100,7 @@ public class VerificationController {
             return () -> ResponseEntity.ok(response);
         } else {
             log.warn("The Code {} is invalid", codeDto);
-            return () -> RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND,
+            return () -> RadarCovidHandler.buildResponseMessage(HttpStatus.NOT_FOUND,
                                                                          "Invalid code " + codeDto.getCode());
         }
     }
@@ -116,8 +114,7 @@ public class VerificationController {
     @Loggable
     @Operation(
             summary = "Verify provided Tan",
-            description = "The provided Tan is verified to be formerly issued by the verification server",
-            hidden = OpenApiConstants.VERIFICATION_VERIFY_TAN_OPERATION_HIDDEN
+            description = "The provided Tan is verified to be formerly issued by the verification server"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tan is valid and formerly issued by the verification server"),
@@ -135,11 +132,11 @@ public class VerificationController {
         boolean result = service.redeemTan(tan.getTan());
         if (result) {
             log.info("The TAN {} is valid", tan);
-            return () -> RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.OK,
+            return () -> RadarCovidHandler.buildResponseMessage(HttpStatus.OK,
                                                                          "TAN " + tan.getTan() + " verified");
         } else {
             log.warn("The TAN {} is invalid", tan);
-            return () -> RadarCovidExceptionHandler.buildResponseMessage(HttpStatus.NOT_FOUND,
+            return () -> RadarCovidHandler.buildResponseMessage(HttpStatus.NOT_FOUND,
                                                                          "Invalid TAN " + tan.getTan());
         }
     }

@@ -7,16 +7,10 @@
  *
  * SPDX-License-Identifier: MPL-2.0
  */
-package es.gob.radarcovid.verification.business;
+package es.gob.radarcovid.verification.vo;
 
-import es.gob.radarcovid.verification.api.CodeDto;
+public enum CCAAKpiTypeEnum {
 
-import java.util.Optional;
-
-public interface VerificationService {
-
-    Optional<String> redeemCode(CodeDto codeDto, boolean efgsSharing);
-
-    boolean redeemTan(String tan);
+    CONTAGIOS;
 
 }

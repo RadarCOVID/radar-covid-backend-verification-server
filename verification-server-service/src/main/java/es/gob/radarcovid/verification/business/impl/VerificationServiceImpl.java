@@ -12,13 +12,9 @@ package es.gob.radarcovid.verification.business.impl;
 import es.gob.radarcovid.common.annotation.Loggable;
 import es.gob.radarcovid.common.exception.RadarCovidServerException;
 import es.gob.radarcovid.verification.api.CodeDto;
-import es.gob.radarcovid.verification.api.CodesResultDto;
 import es.gob.radarcovid.verification.business.VerificationService;
-import es.gob.radarcovid.verification.domain.CCAADto;
-import es.gob.radarcovid.verification.persistence.CCAADao;
 import es.gob.radarcovid.verification.persistence.VerificationDao;
 import es.gob.radarcovid.verification.security.JwtGenerator;
-import es.gob.radarcovid.verification.signature.CodeSignature;
 import es.gob.radarcovid.verification.util.CheckSumUtil;
 import es.gob.radarcovid.verification.util.DateInfection;
 import es.gob.radarcovid.verification.util.GenerateRandom;
@@ -32,11 +28,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -44,29 +37,15 @@ import java.util.stream.IntStream;
 public class VerificationServiceImpl implements VerificationService {
 
     private final VerificationDao dao;
-    private final CCAADao ccaaDao;
     private final GenerateRandom generateRandom;
     private final JwtGenerator jwtGenerator;
-    private final CodeSignature codeSignature;
     private final DateInfection dateInfection;
-
-    @Value("${application.dummy.enabled:false}")
-    private boolean dummyEnabled;
-
-    @Value("${application.dummy.ccaa:DUMMY}")
-    private String dummyCCAA;
-
-    @Value("${application.entities.redeem.code}")
-    private int codeValidUntilDays;
 
     @Value("${application.entities.redeem.tan}")
     private int tanValidUntilMinutes;
 
     @Value("${application.random.tan.size}")
     private int randomTanSize;
-
-    @Value("${application.random.code.size:12}")
-    private int randomCodeSize;
 
     @Loggable
     @Override
@@ -104,32 +83,4 @@ public class VerificationServiceImpl implements VerificationService {
         return stringBuilder.toString();
     }
 
-    @Loggable
-    @Override
-    public CodesResultDto getCodes(boolean radarCovid, String ccaa, Integer number) {
-        List<String> codes = new ArrayList<>();
-        Instant validUntilTime = Instant.now().plus(codeValidUntilDays, ChronoUnit.DAYS);
-        Date validUntil = Date.from(validUntilTime);
-        IntStream.range(0, number).forEach(i -> {
-            codes.add(generateRandom.generateRandomDigits(randomCodeSize));
-        });
-        dao.saveCodes(radarCovid, ccaa, codes, validUntil);
-
-        Optional<CCAADto> ccaaDto = ccaaDao.findById(ccaa);
-        boolean dummy = dummyEnabled && ccaaDto.isPresent() && dummyCCAA.equals(ccaaDto.get().getIssuer());
-
-        CodesResultDto result = new CodesResultDto();
-        result.setCodes(codes);
-        result.setValidUntil(validUntil);
-
-        try {
-            if (dummy && log.isDebugEnabled()) {
-                log.debug("Firmando con clave privada dummy para CCAA {}", ccaa);
-            }
-            result.setSignature(codeSignature.sign(dummy, codes));
-        } catch (Exception e) {
-            log.error("Error firmando códigos: {}", e.getMessage(), e);
-        }
-        return result;
-    }
 }

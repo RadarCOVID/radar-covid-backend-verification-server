@@ -9,20 +9,14 @@
  */
 package es.gob.radarcovid.verification.persistence;
 
+import es.gob.radarcovid.verification.persistence.vo.AuthorizationEnum;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
-public interface VerificationDao {
+public interface CCAAAuthorizationDao {
 
-    @Transactional
-    boolean redeemCode(String code, String tan, Date validUntil);
-
-    @Transactional
-    boolean redeemTan(String tan);
-
-    @Transactional
-    boolean saveCodes(boolean radarCovid, String ccaa, List<String> codes, Date validUntil);
+    @Transactional(readOnly = true)
+    List<AuthorizationEnum> getAuthorization(String ccaa);
 
 }

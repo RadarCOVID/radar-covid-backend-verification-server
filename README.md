@@ -25,6 +25,7 @@ These are the frameworks and tools used to develop the solution:
 - [Lombok](https://projectlombok.org/), to help programmer. Developers have to include the IDE plugin to support Lombok features (ie, for Eclipse based IDE, go [here](https://projectlombok.org/setup/eclipse)).
 - [ArchUnit](https://www.archunit.org/) is used to check Java architecture.
 - [PostgreSQL](https://www.postgresql.org/).
+- [Redis](https://redis.io/) is used for caching.
 - Testing:
     - [Spock Framework](http://spockframework.org/).
     - [Docker](https://www.docker.com/), because of using Testcontainers.
@@ -78,6 +79,7 @@ If you want to run the application inside a docker in local, once you built it, 
 
 ```shell
 docker-compose up -d postgres
+docker-compose up -d redis
 docker-compose up -d backend
 ```
 
@@ -90,8 +92,8 @@ This project doesn't use either [Liquibase](https://www.liquibase.org/) or [Flyw
 
 Because of this, there are two scripts:
 
-- [`01-VERIFICATION-DDL.sql`](./sql/01-VERIFICATION-DDL.sql). Script to create the model.
-- [`02-VERIFICATION-DML.sql`](./sql/02-VERIFICATION-DML.sql). Script with inserts. This file (and also [`data.sql`](./verification-server-boot/src/test/resources/data.sql)) contains sample data for record `01` corresponding to `Andalucía`.
+- [`01-VERIFICATION-DDL.sql`](sql/total/01-VERIFICATION-DDL.sql). Script to create the model.
+- [`02-VERIFICATION-DML.sql`](sql/total/02-VERIFICATION-DML.sql). Script with inserts. This file (and also [`data.sql`](./verification-server-boot/src/test/resources/data.sql)) contains sample data for record `01` corresponding to `Andalucía`.
 
 ### API Documentation
 
@@ -112,6 +114,7 @@ If running in local, you can get:
 | Endpoint | Description |
 | -------- | ----------- |
 | `/generate?n=<number>` | Generates `n` verification codes to be used by Autonomous Communities |
+| '/redemption' | Saves redemption information provided by Autonomous Communities |
 | `/verification/code` | Verify provided code. The provided Code is verified to be formerly issued by the Health Authority |
 | `/verification/tan` | Verify provided TAN. Used internally (for DP3T) to verify the TAN provided in the JWT token, which is sent in the positive notification |
 
