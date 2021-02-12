@@ -22,23 +22,22 @@ class CheckSumUtilTestSpec extends Specification {
 
         where:
         input         | result
-        '00000000000' | 0
-        '12345678912' | 2
+        '87423800248' | 6
+        '14470714152' | 2
+        '41032291514' | 2
     }
 
     @Unroll
     def 'validateChecksum([#input]) = [#result]'(String input, boolean result) {
         expect:
-        CheckSumUtil.validateChecksum(input) ==  result
+        CheckSumUtil.validateChecksum(input) == result
 
         where:
         input          | result
-        '000000000000' | true
-        '000000000001' | false
-        '123456789122' | true
-        '123456789123' | false
+        '687423800248' | true
+        '214470714152' | true
+        '241032291514' | true
         '112358132134' | true
-
     }
 
 }

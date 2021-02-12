@@ -20,10 +20,10 @@ public class Constants {
 
     public static final String API_KEY_AUTH = "apiKeyAuth";
 
-    public static final String AUTHORIZATION_HEADER = "X-RadarCovid-Authorization";
-    public static final String AUTHORIZATION_PREFIX = "Bearer ";
+    public static final String AUTHORIZATION_HEADER = "x-sedia-authorization";
+    public static final String AUTHORIZATION_PREFIX = "";
 
-    public static final String RADAR_PREFIX = "radar-";
+    public static final String RADAR_PREFIX = "sedia-";
     public static final String CCAA_PREFIX = "ccaa-";
     public static final int RADAR_PREFIX_LENGTH = RADAR_PREFIX.length();
     public static final int CCAA_PREFIX_LENGTH = CCAA_PREFIX.length();

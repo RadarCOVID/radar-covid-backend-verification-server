@@ -12,6 +12,7 @@ services:
       DATABASE_USER: radarcovid
       DATABASE_PSW: radarcovid
       DATABASE_SCHEMA: verification
+      REDIS_HOST: redis
     depends_on:
       - postgres
       - redis
