@@ -32,8 +32,8 @@ public class CCAATokenGeneratorTest {
     private static final String PUBLIC_KEY_FILE = "classpath://generated_pub_base64.pem";
 
     private static final String ALGORITHM = "EC";
-    private static final String CCAA_SUBJECT = "01"; // Autonomous Community code from https://www.ine.es/daco/daco42/codmun/cod_ccaa.htm
-    private static final String CCAA_ISSUER = "ISSUER";
+    private static final String CCAA_SUBJECT = "00"; // Autonomous Community code from https://www.ine.es/daco/daco42/codmun/cod_ccaa.htm
+    private static final String CCAA_ISSUER = "sedia-02";
     private static final int TOKEN_MINS_EXPIRES = 15;
 
     @Test
