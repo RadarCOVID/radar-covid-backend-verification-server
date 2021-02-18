@@ -2,8 +2,6 @@
 
 All notable changes to this project will be documented in this file. 
 
-## [1.1.0.RELEASE] - 2020-10-29
-
 ## [1.3.0.RELEASE] - 2021-02-17
 
 ### Fixed
