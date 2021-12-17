@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. 
 
+## [Unreleased]
+
+## [1.3.1.RELEASE] - 2021-12-17
+
+### Changed
+
+- Updated log4j2 version to 2.15.0
+- Updated testcontainers version to 1.16.2
+
 ## [1.3.0.RELEASE] - 2021-02-17
 
 ### Fixed
@@ -93,7 +102,8 @@ All notable changes to this project will be documented in this file.
 - Verification code service, through which the code is verified to be formerly issued by the Health Authority.
 - Verification TAN service, through which is checked the TAN provided in the JWT token, which is sent in the positive notification.
 
-[Unreleased]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.3.0.RELEASE...develop
+[Unreleased]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.3.1.RELEASE...develop
+[1.3.1.RELEASE]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.3.0.RELEASE...1.3.1.RELEASE
 [1.3.0.RELEASE]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.2.0.RELEASE...1.3.0.RELEASE
 [1.2.0.RELEASE]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.1.1.RELEASE...1.2.0.RELEASE
 [1.1.1.RELEASE]: https://github.com/RadarCOVID/radar-covid-backend-verification-server/compare/1.1.0.RELEASE...1.1.1.RELEASE
